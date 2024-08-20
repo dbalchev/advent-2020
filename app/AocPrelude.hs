@@ -1,5 +1,6 @@
+{-# LANGUAGE FlexibleInstances #-}
 module AocPrelude (
-    module All, foo, CanBeEmpty(..)
+    module All, foo, CanBeEmpty(..), makeFileName
 ) where
 
 import           Data.HashSet           as All hiding (append, delete,
@@ -43,6 +44,7 @@ import           Data.Vector.Persistent as All hiding (append, delete,
 import qualified Data.HashMap.Lazy
 import qualified Data.HashSet
 import qualified Data.Text.Lazy
+import qualified Data.Text.Lazy.IO
 import qualified Data.Vector.Persistent
 
 foo :: Int -> Int
@@ -67,3 +69,37 @@ instance CanBeEmpty (HashMap k v) where
 instance CanBeEmpty (Vector a) where
     empty = Data.Vector.Persistent.empty
     null = Data.Vector.Persistent.null
+
+-- AoC specific stuff
+
+class AoCInput a where
+    readInput :: a -> IO Text
+
+instance AoCInput Text where
+    readInput = return
+
+instance AoCInput [Char] where
+    readInput = return . Data.Text.Lazy.pack
+
+newtype TestInput = TestInput String
+newtype RealInput = RealInput String
+
+makeFileName dirName day = "inputs/" ++ dirName ++ "/" ++ day ++ ".txt"
+
+
+readAocInput dirName day = do
+    let filename = makeFileName dirName day
+    Data.Text.Lazy.IO.readFile filename
+
+instance AoCInput TestInput where
+    readInput (TestInput day) = readAocInput "test" day
+
+
+instance AoCInput RealInput where
+    readInput (RealInput day) = readAocInput "real" day
+
+
+runSolution :: (AoCInput input) => (Text -> a) -> input -> IO a
+runSolution solution aocInput = do
+    inputValue <- readInput aocInput
+    return $ solution inputValue
