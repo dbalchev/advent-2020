@@ -1,0 +1,36 @@
+cabal-version:      3.0
+name:               advent2020
+version:            0.1.0.0
+
+
+common my-requires
+    build-depends:
+        base ^>= 4.16.4.0,
+        text ^>= 2.1.1,
+        persistent-vector ^>= 0.2.0,
+        unordered-containers ^>= 0.2.20,
+
+library advent2020-lib
+    import: my-requires
+    hs-source-dirs:   app
+    exposed-modules: 
+        AocPrelude,
+
+executable advent2020
+    import: my-requires
+    main-is: Main.hs
+    hs-source-dirs:   app
+    build-depends:
+        advent2020-lib
+    default-language: Haskell2010
+    -- other-modules:
+
+test-suite tests
+    import: my-requires
+    type:                exitcode-stdio-1.0
+    hs-source-dirs:      tests
+    build-depends:
+        advent2020-lib,
+        HUnit ^>= 1.6.2.0,
+    main-is:             Suite.hs
+    default-language: Haskell2010
