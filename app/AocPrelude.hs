@@ -6,46 +6,46 @@ module AocPrelude (
 import           Data.HashSet           as All hiding (append, delete,
                                                 difference, drop, dropWhile,
                                                 empty, filter, foldl, foldl',
-                                                foldr, foldr', fromList, index,
-                                                insert, intersection, length,
-                                                map, member, null, partition,
-                                                reverse, singleton, size, snoc,
-                                                splitAt, take, takeWhile,
-                                                toList, union, unions, update,
-                                                zip)
+                                                foldr, foldr', fromList, head,
+                                                index, insert, intersection,
+                                                length, map, member, null,
+                                                partition, reverse, singleton,
+                                                size, snoc, splitAt, take,
+                                                takeWhile, toList, union,
+                                                unions, update, zip)
 import           Prelude                hiding (lines)
 
 import           Data.HashMap.Lazy      as All hiding (append, delete,
                                                 difference, drop, dropWhile,
                                                 empty, filter, foldl, foldl',
-                                                foldr, foldr', fromList, index,
-                                                insert, intersection, length,
-                                                map, member, null, partition,
-                                                reverse, singleton, size, snoc,
-                                                splitAt, take, takeWhile,
-                                                toList, union, unions, update,
-                                                zip)
+                                                foldr, foldr', fromList, head,
+                                                index, insert, intersection,
+                                                length, map, member, null,
+                                                partition, reverse, singleton,
+                                                size, snoc, splitAt, take,
+                                                takeWhile, toList, union,
+                                                unions, update, zip)
 import           Data.Text.Lazy         as All hiding (append, delete,
                                                 difference, drop, dropWhile,
                                                 empty, filter, foldl, foldl',
-                                                foldr, foldr', fromList, index,
-                                                insert, intersection, length,
-                                                map, member, null, partition,
-                                                reverse, singleton, size, snoc,
-                                                splitAt, take, takeWhile,
-                                                toList, union, unions, update,
-                                                zip)
+                                                foldr, foldr', fromList, head,
+                                                index, insert, intersection,
+                                                length, map, member, null,
+                                                partition, reverse, singleton,
+                                                size, snoc, splitAt, take,
+                                                takeWhile, toList, union,
+                                                unions, update, zip)
 import           Data.Text.Lazy.Read    as All
 import           Data.Vector.Persistent as All hiding (append, delete,
                                                 difference, drop, dropWhile,
                                                 empty, filter, foldl, foldl',
-                                                foldr, foldr', fromList, index,
-                                                insert, intersection, length,
-                                                map, member, null, partition,
-                                                reverse, singleton, size, snoc,
-                                                splitAt, take, takeWhile,
-                                                toList, union, unions, update,
-                                                zip)
+                                                foldr, foldr', fromList, head,
+                                                index, insert, intersection,
+                                                length, map, member, null,
+                                                partition, reverse, singleton,
+                                                size, snoc, splitAt, take,
+                                                takeWhile, toList, union,
+                                                unions, update, zip)
 
 import qualified Data.HashMap.Lazy
 import qualified Data.HashSet
