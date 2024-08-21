@@ -1,51 +1,78 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE TypeFamilies      #-}
 module AocPrelude (
-    module All, foo, CanBeEmpty(..), FromList(..), makeFileName, TestInput(..), RealInput(..), runSolution
+    module All, module Prelude, foo, CanBeEmpty(..), FromList(..), makeFileName, TestInput(..), RealInput(..), runSolution
 ) where
-import           Data.HashSet           as All hiding (append, delete,
-                                                difference, drop, dropWhile,
-                                                empty, filter, foldl, foldl',
-                                                foldr, foldr', fromList, head,
-                                                index, insert, intersection,
-                                                length, map, member, null,
-                                                partition, reverse, singleton,
-                                                size, snoc, splitAt, take,
-                                                takeWhile, toList, union,
-                                                unions, update, zip)
-import           Prelude                hiding (lines)
 
-import           Data.HashMap.Lazy      as All hiding (append, delete,
-                                                difference, drop, dropWhile,
-                                                empty, filter, foldl, foldl',
-                                                foldr, foldr', fromList, head,
-                                                index, insert, intersection,
-                                                length, map, member, null,
-                                                partition, reverse, singleton,
-                                                size, snoc, splitAt, take,
+
+import           Data.HashSet           as All hiding (all, any, append, break,
+                                                concat, concatMap, cycle,
+                                                delete, difference, drop,
+                                                dropWhile, elem, empty, filter,
+                                                foldl, foldl', foldl1, foldr,
+                                                foldr', foldr1, fromList, head,
+                                                index, init, insert,
+                                                intersection, iterate, last,
+                                                length, lookup, map, maximum,
+                                                member, minimum, null,
+                                                partition, repeat, replicate,
+                                                reverse, scanl, scanl1, scanr,
+                                                scanr1, singleton, size, snoc,
+                                                span, splitAt, tail, take,
                                                 takeWhile, toList, union,
-                                                unions, update, zip)
-import           Data.Text.Lazy         as All hiding (append, delete,
-                                                difference, drop, dropWhile,
-                                                empty, filter, foldl, foldl',
-                                                foldr, foldr', fromList, head,
-                                                index, insert, intersection,
-                                                length, map, member, null,
-                                                partition, reverse, singleton,
-                                                size, snoc, splitAt, take,
+                                                unions, update, zip, zipWith)
+import           Prelude                hiding (lines, null, unlines, unwords,
+                                         words)
+
+import           Data.HashMap.Lazy      as All hiding (all, any, append, break,
+                                                concat, concatMap, cycle,
+                                                delete, difference, drop,
+                                                dropWhile, elem, empty, filter,
+                                                foldl, foldl', foldl1, foldr,
+                                                foldr', foldr1, fromList, head,
+                                                index, init, insert,
+                                                intersection, iterate, last,
+                                                length, lookup, map, maximum,
+                                                member, minimum, null,
+                                                partition, repeat, replicate,
+                                                reverse, scanl, scanl1, scanr,
+                                                scanr1, singleton, size, snoc,
+                                                span, splitAt, tail, take,
                                                 takeWhile, toList, union,
-                                                unions, update, zip)
+                                                unions, update, zip, zipWith)
+import           Data.Text.Lazy         as All hiding (all, any, append, break,
+                                                concat, concatMap, cycle,
+                                                delete, difference, drop,
+                                                dropWhile, elem, empty, filter,
+                                                foldl, foldl', foldl1, foldr,
+                                                foldr', foldr1, fromList, head,
+                                                index, init, insert,
+                                                intersection, iterate, last,
+                                                length, lookup, map, maximum,
+                                                member, minimum, null,
+                                                partition, repeat, replicate,
+                                                reverse, scanl, scanl1, scanr,
+                                                scanr1, singleton, size, snoc,
+                                                span, splitAt, tail, take,
+                                                takeWhile, toList, union,
+                                                unions, update, zip, zipWith)
 import           Data.Text.Lazy.Read    as All
-import           Data.Vector.Persistent as All hiding (append, delete,
-                                                difference, drop, dropWhile,
-                                                empty, filter, foldl, foldl',
-                                                foldr, foldr', fromList, head,
-                                                index, insert, intersection,
-                                                length, map, member, null,
-                                                partition, reverse, singleton,
-                                                size, snoc, splitAt, take,
+import           Data.Vector.Persistent as All hiding (all, any, append, break,
+                                                concat, concatMap, cycle,
+                                                delete, difference, drop,
+                                                dropWhile, elem, empty, filter,
+                                                foldl, foldl', foldl1, foldr,
+                                                foldr', foldr1, fromList, head,
+                                                index, init, insert,
+                                                intersection, iterate, last,
+                                                length, lookup, map, maximum,
+                                                member, minimum, null,
+                                                partition, repeat, replicate,
+                                                reverse, scanl, scanl1, scanr,
+                                                scanr1, singleton, size, snoc,
+                                                span, splitAt, tail, take,
                                                 takeWhile, toList, union,
-                                                unions, update, zip)
+                                                unions, update, zip, zipWith)
 
 import qualified Data.HashMap.Lazy
 import qualified Data.HashSet

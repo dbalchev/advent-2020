@@ -3,7 +3,7 @@ import           AocPrelude
 import           Control.Monad (guard)
 import           Data.Either   (partitionEithers)
 import           Data.Maybe    (maybeToList)
-import           Prelude       hiding (lines)
+import           Prelude       ()
 
 
 generalSolution inputNumbers = product . head . go 0 2020
