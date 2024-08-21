@@ -17,7 +17,8 @@ library advent2020-lib
     hs-source-dirs:   app
     exposed-modules: 
         AocPrelude,
-        Day01,
+        -- Day01,
+        -- Day02,
 
 executable advent2020
     import: my-requires
@@ -29,6 +30,7 @@ executable advent2020
     other-modules:
         AocPrelude,
         Day01,
+        Day02,
 
 test-suite tests
     import: my-requires

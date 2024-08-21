@@ -1,7 +1,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE TypeFamilies      #-}
 module AocPrelude (
-    module All, module Prelude, foo, CanBeEmpty(..), FromList(..), makeFileName, TestInput(..), RealInput(..), runSolution
+    module All, module Prelude, foo, CanBeEmpty(..), FromList(..), ListLike(..), Indexable(..), makeFileName, TestInput(..), RealInput(..), runSolution
 ) where
 
 
@@ -20,9 +20,10 @@ import           Data.HashSet           as All hiding (all, any, append, break,
                                                 scanr1, singleton, size, snoc,
                                                 span, splitAt, tail, take,
                                                 takeWhile, toList, union,
-                                                unions, update, zip, zipWith)
-import           Prelude                hiding (lines, null, unlines, unwords,
-                                         words)
+                                                unions, update, zip, zipWith,
+                                                (!))
+import           Prelude                hiding (head, lines, null, unlines,
+                                         unwords, words)
 
 import           Data.HashMap.Lazy      as All hiding (all, any, append, break,
                                                 concat, concatMap, cycle,
@@ -39,7 +40,8 @@ import           Data.HashMap.Lazy      as All hiding (all, any, append, break,
                                                 scanr1, singleton, size, snoc,
                                                 span, splitAt, tail, take,
                                                 takeWhile, toList, union,
-                                                unions, update, zip, zipWith)
+                                                unions, update, zip, zipWith,
+                                                (!))
 import           Data.Text.Lazy         as All hiding (all, any, append, break,
                                                 concat, concatMap, cycle,
                                                 delete, difference, drop,
@@ -55,7 +57,8 @@ import           Data.Text.Lazy         as All hiding (all, any, append, break,
                                                 scanr1, singleton, size, snoc,
                                                 span, splitAt, tail, take,
                                                 takeWhile, toList, union,
-                                                unions, update, zip, zipWith)
+                                                unions, update, zip, zipWith,
+                                                (!))
 import           Data.Text.Lazy.Read    as All
 import           Data.Vector.Persistent as All hiding (all, any, append, break,
                                                 concat, concatMap, cycle,
@@ -72,13 +75,15 @@ import           Data.Vector.Persistent as All hiding (all, any, append, break,
                                                 scanr1, singleton, size, snoc,
                                                 span, splitAt, tail, take,
                                                 takeWhile, toList, union,
-                                                unions, update, zip, zipWith)
+                                                unions, update, zip, zipWith,
+                                                (!))
 
 import qualified Data.HashMap.Lazy
 import qualified Data.HashSet
 import qualified Data.Text.Lazy
 import qualified Data.Text.Lazy.IO
 import qualified Data.Vector.Persistent
+import qualified Prelude
 
 import           Data.Hashable          (Hashable)
 
@@ -122,9 +127,34 @@ instance (Eq k, Hashable k) => FromList (HashMap k v) where
     fromList = Data.HashMap.Lazy.fromList
 
 
-instance (Eq a, Hashable a) => FromList (Vector a) where
+instance FromList (Vector a) where
     type (FromElement (Vector a)) = a
     fromList = Data.Vector.Persistent.fromList
+
+class ListLike a where
+    type Element a
+    head :: a -> Element a
+    singleton :: Element a -> a
+
+instance ListLike [a] where
+    type Element [a] = a
+    head = Prelude.head
+    singleton x = [x]
+
+instance ListLike Text where
+    type Element Text = Char
+    head = Data.Text.Lazy.head
+    singleton = Data.Text.Lazy.singleton
+
+class Indexable a where
+    type Index a
+    type Value a
+    (!) :: a -> Index a -> Value a
+
+instance Indexable Text where
+    type Index Text = Int
+    type Value Text = Char
+    (!) text i = Data.Text.Lazy.index text (fromIntegral i)
 
 -- AoC specific stuff
 
