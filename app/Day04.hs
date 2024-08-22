@@ -2,11 +2,9 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 module Day04 where
 import           AocPrelude
-import           Control.Monad (guard)
 import           Data.Bool     (bool)
 import           Data.Char     (isDigit, isHexDigit)
 import           Data.Foldable (Foldable (toList))
-import           Data.Maybe    (isJust)
 import           Prelude       ()
 
 
@@ -28,36 +26,39 @@ parsePassport passportStr = fromList $ do
 
 isValidPassport1 passport = requiredFields `isSubsetOf` keysSet passport
 
-extractYear :: HashMap Text Text -> Text -> Maybe Int
-extractYear passport field = do
-    (year, _) <- either (const Nothing) Just . decimal =<< passport !? field
-    return year
+extractYear :: Text -> HashMap Text Text -> Maybe Int
+extractYear field passport  = ((fst <$>) . either (const Nothing) Just . decimal) =<< passport !? field
+
+inRange (lowest, highest) x = lowest <= x && x <= highest
+
+checkYear range = either (const False) (inRange range . fst) . decimal
+
+checkHeight (hgtValue, hgtUnit) = case hgtUnit of
+    "cm" -> 150 <= hgtValue && hgtValue <= 193
+    "in" -> 59 <= hgtValue && hgtValue <= 76
+    _    -> False
+
+checkHairColor hcl = (hcl ! 0) == '#' && length hcl == 7 && (all isHexDigit . (drop 1 . unpack)) hcl
 
 possibleEcl :: HashSet Text
 possibleEcl = fromList ["amb",  "blu", "brn", "gry", "grn", "hzl", "oth"]
+
+checkPassportId pid = length pid == 9 && (all isDigit . unpack) pid
+
+checks = [
+    ("byr", checkYear (1920, 2002)),
+    ("iyr", checkYear (2010, 2020)),
+    ("eyr", checkYear (2020, 2030)),
+    ("hgt", either (const False) checkHeight . decimal),
+    ("hcl", checkHairColor),
+    ("ecl", (`member` possibleEcl)),
+    ("pid", checkPassportId)
+    ]
+
 isValidPassport2 :: HashMap Text Text -> Bool
-isValidPassport2 passport = isJust $ do
-    byr <- extractYear passport "byr"
-    guard $ 1920 <= byr && byr <= 2002
-    iyr <- extractYear passport "iyr"
-    guard $ 2010 <= iyr && iyr <= 2020
-    eyr <- extractYear passport "eyr"
-    guard $ 2020 <= eyr && eyr <= 2030
-    hgt :: Text <- passport !? "hgt"
-    (hghValue, hgtUnit) <- (either (const Nothing) Just . decimal) hgt
-    guard $ case hgtUnit of
-        "cm" -> 150 <= hghValue && hghValue <= 193
-        "in" -> 59 <= hghValue && hghValue <= 76
-        _    -> False
-    hcl <- passport !? "hcl"
-    guard $ (hcl ! 0) == '#' && length hcl == 7 && (all isHexDigit . (drop 1 . unpack)) hcl
-    ecl <- passport !? "ecl"
-    guard $ member ecl possibleEcl
-    pid <- passport !? "pid"
-    guard $ length pid == 9 && (all isDigit . unpack) pid
-
-    return True
-
+isValidPassport2 passport = all applyCheck checks
+    where
+        applyCheck (key, check) = maybe False check (passport !? key)
 
 solution inputText = (solution1, solution2)
     where
