@@ -18,9 +18,6 @@ parsePassport passportStr = fromList $ do
 
 isValidPassport1 passport = requiredFields `isSubsetOf` keysSet passport
 
-extractYear :: Text -> HashMap Text Text -> Maybe Int
-extractYear field passport  = ((fst <$>) . either (const Nothing) Just . decimal) =<< passport !? field
-
 inRange (lowest, highest) x = lowest <= x && x <= highest
 
 checkYear range = either (const False) (inRange range . fst) . decimal
