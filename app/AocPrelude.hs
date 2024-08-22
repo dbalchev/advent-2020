@@ -21,7 +21,7 @@ import           Data.HashSet           as All hiding (all, any, append, break,
                                                 span, splitAt, tail, take,
                                                 takeWhile, toList, union,
                                                 unions, update, zip, zipWith,
-                                                (!))
+                                                (!), (!?))
 import           Prelude                hiding (head, lines, null, unlines,
                                          unwords, words)
 
@@ -41,7 +41,7 @@ import           Data.HashMap.Lazy      as All hiding (all, any, append, break,
                                                 span, splitAt, tail, take,
                                                 takeWhile, toList, union,
                                                 unions, update, zip, zipWith,
-                                                (!))
+                                                (!), (!?))
 import           Data.Text.Lazy         as All hiding (all, any, append, break,
                                                 concat, concatMap, cycle,
                                                 delete, difference, drop,
@@ -58,7 +58,7 @@ import           Data.Text.Lazy         as All hiding (all, any, append, break,
                                                 span, splitAt, tail, take,
                                                 takeWhile, toList, union,
                                                 unions, update, zip, zipWith,
-                                                (!))
+                                                (!), (!?))
 import           Data.Text.Lazy.Read    as All
 import           Data.Vector.Persistent as All hiding (all, any, append, break,
                                                 concat, concatMap, cycle,
@@ -76,7 +76,7 @@ import           Data.Vector.Persistent as All hiding (all, any, append, break,
                                                 span, splitAt, tail, take,
                                                 takeWhile, toList, union,
                                                 unions, update, zip, zipWith,
-                                                (!))
+                                                (!), (!?))
 
 import qualified Data.HashMap.Lazy
 import qualified Data.HashSet
@@ -150,19 +150,32 @@ class Indexable a where
     type Index a
     type Value a
     (!) :: a -> Index a -> Value a
+    (!?) :: a -> Index a -> Maybe (Value a)
 
 instance Indexable Text where
     type Index Text = Int
     type Value Text = Char
     (!) text i = Data.Text.Lazy.index text (fromIntegral i)
-
+    (!?) text i
+        | i < fromIntegral (Data.Text.Lazy.length text) = Just (text ! i)
+        | otherwise = Nothing
 
 instance Indexable (Vector a) where
     type Index (Vector a) = Int
     type Value (Vector a) = a
     (!) vector i = x
         where
-            Just x = Data.Vector.Persistent.index vector (fromIntegral i)
+            Just x =vector !? fromIntegral i
+    (!?) = Data.Vector.Persistent.index
+
+instance (Eq k, Hashable k) => Indexable (HashMap k v) where
+    type Index (HashMap k v) = k
+    type Value (HashMap k v) = v
+    (!?) = (Data.HashMap.Lazy.!?)
+    (!) hashMap key = value
+        where
+            Just value = hashMap !? key
+
 
 -- AoC specific stuff
 
