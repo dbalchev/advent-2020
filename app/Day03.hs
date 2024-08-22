@@ -7,24 +7,35 @@ import           Prelude       ()
 
 type Grid = Vector (Vector Char)
 
-countTreeHits :: Grid -> Int
-countTreeHits grid = go (toList grid) 0 0
+countTreeHits :: Grid -> (Int, Int) -> Int
+countTreeHits grid (deltaI, deltaJ) = go 0 0 0
     where
-        go :: [Vector Char] -> Int -> Int -> Int
-        go [] _ acc = acc
-        go (line:lines) currentPos acc = go lines nextPos newAcc
+        go :: Int -> Int -> Int -> Int
+        go i j acc
+            | i >= length grid = acc
+            | otherwise = go (i + deltaI) nextPos newAcc
             where
-                nextPos = (currentPos + 3) `mod` length line
-                newAcc = acc + bool 0 1 ((line ! currentPos) == '#')
+                line = grid ! i
+                nextPos = (j + deltaJ) `mod` length line
+                newAcc = acc + bool 0 1 ((line ! j) == '#')
 
 
-solution inputText = countTreeHits inputGrid
+solution inputText = (solution1, solution2)
     where
         inputGrid :: Grid
         inputGrid = (fromList . map (fromList . unpack) . lines) inputText
+        solution1 = countTreeHits inputGrid (1, 3)
+        solution2 = product $ map (countTreeHits inputGrid) predefinedDeltas
+        predefinedDeltas = [
+            (1, 1),
+            (1, 3),
+            (1, 5),
+            (1, 7),
+            (2, 1)
+            ]
 
 --- >>> runSolution solution (TestInput "03")
--- 7
+-- (7,336)
 
 --- >>> runSolution solution (RealInput "03")
--- 209
+-- (209,1574890240)
