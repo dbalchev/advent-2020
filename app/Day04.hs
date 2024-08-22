@@ -9,15 +9,7 @@ import           Prelude       ()
 
 
 requiredFields :: HashSet Text
-requiredFields = fromList [
-    "byr",
-    "iyr",
-    "eyr",
-    "hgt",
-    "hcl",
-    "ecl",
-    "pid"
-    ]
+requiredFields = (fromList . map fst) checks
 
 parsePassport :: Text -> HashMap Text Text
 parsePassport passportStr = fromList $ do
