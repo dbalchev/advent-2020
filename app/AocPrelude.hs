@@ -1,7 +1,13 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE TypeFamilies      #-}
 module AocPrelude (
-    module All, module Prelude, foo, CanBeEmpty(..), FromList(..), ListLike(..), Indexable(..), makeFileName, TestInput(..), RealInput(..), runSolution
+    module All,
+    module Prelude,
+    foo,
+    CanBeEmpty(..), FromList(..), ListLike(..), Indexable(..), Splittable(..), HasLength(..), SetLike(..),
+    makeFileName,
+    TestInput(..), RealInput(..),
+    runSolution
 ) where
 
 
@@ -22,8 +28,8 @@ import           Data.HashSet           as All hiding (all, any, append, break,
                                                 takeWhile, toList, union,
                                                 unions, update, zip, zipWith,
                                                 (!), (!?))
-import           Prelude                hiding (head, lines, null, unlines,
-                                         unwords, words)
+import           Prelude                hiding (head, length, lines, null,
+                                         splitAt, unlines, unwords, words)
 
 import           Data.HashMap.Lazy      as All hiding (all, any, append, break,
                                                 concat, concatMap, cycle,
@@ -86,6 +92,7 @@ import qualified Data.Vector.Persistent
 import qualified Prelude
 
 import           Data.Hashable          (Hashable)
+import           Data.Kind
 
 foo :: Int -> Int
 foo x = 2 * x
@@ -175,7 +182,28 @@ instance (Eq k, Hashable k) => Indexable (HashMap k v) where
     (!) hashMap key = value
         where
             Just value = hashMap !? key
+class Splittable a where
+    splitAt :: Int -> a -> (a, a)
 
+instance Splittable Text where
+    splitAt i = Data.Text.Lazy.splitAt (fromIntegral i)
+
+class HasLength a where
+    length :: a -> Int
+
+instance (Foldable (t :: Type -> Type)) => (HasLength (t a)) where
+    length = Prelude.length
+
+instance HasLength Text where
+    length = fromIntegral . Data.Text.Lazy.length
+
+class SetLike a where
+    type SetItem a
+    member :: SetItem a -> a  -> Bool
+
+instance (Hashable a, Eq a) => SetLike (HashSet a) where
+    type SetItem (HashSet a) = a
+    member = Data.HashSet.member
 
 -- AoC specific stuff
 
