@@ -34,8 +34,8 @@ inRange (lowest, highest) x = lowest <= x && x <= highest
 checkYear range = either (const False) (inRange range . fst) . decimal
 
 checkHeight (hgtValue, hgtUnit) = case hgtUnit of
-    "cm" -> 150 <= hgtValue && hgtValue <= 193
-    "in" -> 59 <= hgtValue && hgtValue <= 76
+    "cm" -> inRange (150, 193) hgtValue
+    "in" -> inRange (59, 76) hgtValue
     _    -> False
 
 checkHairColor hcl = (hcl ! 0) == '#' && length hcl == 7 && (all isHexDigit . (drop 1 . unpack)) hcl
