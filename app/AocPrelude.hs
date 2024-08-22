@@ -156,6 +156,14 @@ instance Indexable Text where
     type Value Text = Char
     (!) text i = Data.Text.Lazy.index text (fromIntegral i)
 
+
+instance Indexable (Vector a) where
+    type Index (Vector a) = Int
+    type Value (Vector a) = a
+    (!) vector i = x
+        where
+            Just x = Data.Vector.Persistent.index vector (fromIntegral i)
+
 -- AoC specific stuff
 
 class AoCInput a where

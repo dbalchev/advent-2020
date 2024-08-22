@@ -31,6 +31,7 @@ executable advent2020
         AocPrelude,
         Day01,
         Day02,
+        Day03,
 
 test-suite tests
     import: my-requires
