@@ -34,8 +34,8 @@ seatId (row, seat) = 8 * row + seat
 
 solution text = (maximum seatIds, mySeatId)
     where
-        seatIds = fromList @(Vector Int) $ sort .map (seatId . parseZone) $ lines text
-        mySeatId = map snd . filter fst $ zipWith (\a b -> (a + 1 /= b, a+1)) (toList seatIds) (drop 1 $ toList seatIds)
+        seatIds = fromList @(Vector Int) $ sort . map (seatId . parseZone) $ lines text
+        mySeatId = map snd . filter fst $ zipWith (\a b -> (a + 1 /= b, a + 1)) (toList seatIds) (drop 1 $ toList seatIds)
 
 -- >>> runSolution solution (TestInput "05")
 -- (820,[120,568])
