@@ -4,7 +4,7 @@ module AocPrelude (
     module All,
     module Prelude,
     foo,
-    CanBeEmpty(..), FromList(..), ListLike(..), Indexable(..), Splittable(..), HasLength(..), SetLike(..),
+    CanBeEmpty(..), FromList(..), ListLike(..), Indexable(..), Splittable(..), HasLength(..), SetLike(..), HasIntersection(..),
     makeFileName,
     TestInput(..), RealInput(..),
     runSolution
@@ -204,6 +204,15 @@ class SetLike a where
 instance (Hashable a, Eq a) => SetLike (HashSet a) where
     type SetItem (HashSet a) = a
     member = Data.HashSet.member
+
+class HasIntersection a where
+    intersection :: a -> a -> a
+
+instance (Hashable k, Eq k) => HasIntersection (HashMap k v) where
+    intersection = Data.HashMap.Lazy.intersection
+
+instance (Hashable a, Eq a) =>HasIntersection (HashSet a) where
+    intersection = Data.HashSet.intersection
 
 -- AoC specific stuff
 
