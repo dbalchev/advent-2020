@@ -64,17 +64,29 @@ collectDescendents childrenOfVertex (x:xs) acc
     | x `member` acc = collectDescendents childrenOfVertex xs acc
     | otherwise = collectDescendents childrenOfVertex (childrenOfVertex x ++ xs) (insert x acc)
 
-solve input = length descendents - 1
+countInside nameToRegulation bagType = (sum . map innerContent . toList) possibleContent
+    where
+        Regulation {possibleContent} = nameToRegulation ! bagType
+        innerContent (numBags, innerBagType) = numBags * (1 +  countInside nameToRegulation innerBagType)
+
+myBagType = "shiny gold"
+
+solve input = (length descendents - 1, countInside nameToRegulation myBagType)
     where
         regulations = fromList @(Vector _) . map parseRegulation . lines $ input
+        nameToRegulation = fromList @(HashMap _ _) . map (\r -> (bagType r, r)) . toList $ regulations
         simpleGraph = fromList @(Vector _) . map regulationToVertex . toList $ regulations
         reversedGraph = fromList @(Vector _) $ reverseGraph  simpleGraph
         childrenOfVertex = fromList @(HashMap _ _) . map (\Vertex {name, children} -> (name, children)) . toList $ reversedGraph
         descendents :: HashSet Text
-        descendents = collectDescendents (maybe [] toList .(childrenOfVertex !?)) ["shiny gold"] empty
+        descendents = collectDescendents (maybe [] toList .(childrenOfVertex !?)) [myBagType] empty
 
 -- >>> runSolution solve (TestInput "07")
--- 4
+-- (4,32)
+
+-- >>> runSolution solve (TestInput "07.2")
+-- (0,126)
+
 
 -- >>> runSolution solve (RealInput "07")
--- 265
+-- (265,14177)
