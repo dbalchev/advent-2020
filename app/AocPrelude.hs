@@ -4,7 +4,8 @@ module AocPrelude (
     module All,
     module Prelude,
     foo,
-    CanBeEmpty(..), FromList(..), ListLike(..), Indexable(..), Splittable(..), HasLength(..), SetLike(..),
+    CanBeEmpty(..), FromList(..), ListLike(..), Indexable(..), Splittable(..), HasLength(..), SetLike(..), Insertable(..),
+    toKeyValuePairs,
     makeFileName,
     TestInput(..), RealInput(..),
     runSolution
@@ -29,7 +30,8 @@ import           Data.HashSet           as All hiding (all, any, append, break,
                                                 unions, update, zip, zipWith,
                                                 (!), (!?))
 import           Prelude                hiding (head, length, lines, null,
-                                         splitAt, unlines, unwords, words)
+                                         splitAt, toList, unlines, unwords,
+                                         words)
 
 import           Data.HashMap.Lazy      as All hiding (all, any, append, break,
                                                 concat, concatMap, cycle,
@@ -133,7 +135,6 @@ instance (Eq k, Hashable k) => FromList (HashMap k v) where
     type (FromElement (HashMap k v)) = (k, v)
     fromList = Data.HashMap.Lazy.fromList
 
-
 instance FromList (Vector a) where
     type (FromElement (Vector a)) = a
     fromList = Data.Vector.Persistent.fromList
@@ -142,16 +143,26 @@ class ListLike a where
     type Element a
     head :: a -> Element a
     singleton :: Element a -> a
+    snoc :: a -> Element a -> a
 
 instance ListLike [a] where
     type Element [a] = a
     head = Prelude.head
     singleton x = [x]
+    snoc xs x = xs ++ [x]
 
 instance ListLike Text where
     type Element Text = Char
     head = Data.Text.Lazy.head
     singleton = Data.Text.Lazy.singleton
+    snoc = Data.Text.Lazy.snoc
+
+
+instance ListLike (Vector a) where
+    type Element (Vector a) = a
+    head xs = xs ! 0
+    singleton = Data.Vector.Persistent.singleton
+    snoc = Data.Vector.Persistent.snoc
 
 class Indexable a where
     type Index a
@@ -215,6 +226,15 @@ instance (Hashable k, Eq k) => SetLike (HashMap k v) where
     intersection = Data.HashMap.Lazy.intersection
     union = Data.HashMap.Lazy.union
 
+class Insertable a where
+    type InsertElement a
+    insert :: InsertElement a -> a -> a
+
+instance (Hashable a, Eq a) => Insertable (HashSet a) where
+    type InsertElement (HashSet a) = a
+    insert = Data.HashSet.insert
+
+toKeyValuePairs = Data.HashMap.Lazy.toList
 
 -- AoC specific stuff
 
