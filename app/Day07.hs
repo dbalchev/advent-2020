@@ -66,12 +66,12 @@ collectDescendents childrenOfVertex (x:xs) acc
 
 countInside nameToRegulation bagType = (sum . map innerContent . toList) possibleContent
     where
-        Regulation {possibleContent} = nameToRegulation ! bagType
+        Regulation {possibleContent} = nameToRegulation bagType
         innerContent (numBags, innerBagType) = numBags * (1 +  countInside nameToRegulation innerBagType)
 
 myBagType = "shiny gold"
 
-solve input = (length descendents - 1, countInside nameToRegulation myBagType)
+solve input = (length descendents - 1, countInside (nameToRegulation !) myBagType)
     where
         regulations = fromList @(Vector _) . map parseRegulation . lines $ input
         nameToRegulation = fromList @(HashMap _ _) . map (\r -> (bagType r, r)) . toList $ regulations
