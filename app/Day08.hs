@@ -42,9 +42,9 @@ run instructions = go (0, 0) (empty @(HashSet _))
                     Just currentInstruction -> go (execute currentInstruction state) (insert ip visitedIps)
                     Nothing -> Left (ip, register)
 
-toggleInstruction (ACC, arg) = []
-toggleInstruction (NOP, arg) = [(JMP, arg)]
-toggleInstruction (JMP, arg) = [(NOP, arg)]
+toggleInstruction (ACC, arg) = Nothing
+toggleInstruction (NOP, arg) = Just (JMP, arg)
+toggleInstruction (JMP, arg) = Just (NOP, arg)
 
 solution input = (solution1, solution2)
     where
@@ -52,7 +52,7 @@ solution input = (solution1, solution2)
         Right solution1 = run instructions
         (solution2:_) = do
             instructionToggleIp <- [0..length instructions - 1]
-            toggledInstruction <- toggleInstruction (instructions ! instructionToggleIp)
+            toggledInstruction <- maybe [] singleton $ toggleInstruction (instructions ! instructionToggleIp)
             let updatedInstructions = update instructionToggleIp toggledInstruction instructions
             Left (invalidIp, register) <- return $ run updatedInstructions
             guard $ invalidIp == length instructions
