@@ -1,7 +1,7 @@
 {-# LANGUAGE GADTs             #-}
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TypeApplications  #-}
 module Day08 where
-{-# LANGUAGE OverloadedStrings #-}
 import           AocPrelude
 import           Control.Monad (guard)
 import           Prelude       ()
@@ -13,18 +13,18 @@ parseInstruction line = (opcode, arg)
     where
         [opcodeStr, argStr] = words line
         Right (arg, _) = signed decimal argStr
-        opcode = case unpack opcodeStr of
+        opcode = case opcodeStr of
             "nop" -> NOP
             "acc" -> ACC
             "jmp" -> JMP
 
--- >>> parseInstruction (pack "nop +0")
+-- >>> parseInstruction "nop +0"
 -- (NOP,0)
 
--- >>> parseInstruction (pack "acc +1")
+-- >>> parseInstruction "acc +1"
 -- (ACC,1)
 
--- >>> parseInstruction (pack "jmp -4")
+-- >>> parseInstruction "jmp -4"
 -- (JMP,-4)
 
 execute (NOP, _) (ip, register)   = (ip + 1, register)
