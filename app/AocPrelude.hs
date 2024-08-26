@@ -4,7 +4,7 @@ module AocPrelude (
     module All,
     module Prelude,
     foo,
-    CanBeEmpty(..), FromList(..), ListLike(..), Indexable(..), Splittable(..), HasLength(..), SetLike(..), Insertable(..),
+    CanBeEmpty(..), FromList(..), ListLike(..), Indexable(..), Splittable(..), HasLength(..), SetLike(..), Insertable(..), Updatable(..),
     toKeyValuePairs,
     makeFileName,
     TestInput(..), RealInput(..),
@@ -193,6 +193,13 @@ instance (Eq k, Hashable k) => Indexable (HashMap k v) where
     (!) hashMap key = value
         where
             Just value = hashMap !? key
+
+class (Indexable a) => Updatable a where
+    update :: Index a -> Value a -> a -> a
+
+instance Updatable (Vector a) where
+    update = Data.Vector.Persistent.update
+
 class Splittable a where
     splitAt :: Int -> a -> (a, a)
 
