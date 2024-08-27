@@ -29,10 +29,11 @@ solve1FoldFn (numbersSet, restResult) (dropX, testX) = (updatedNumbersSet, newRe
 
 solve2 numbers cumSum x = minimum desiredList +  maximum desiredList
     where
+        cumSumToIndex = fromList @(HashMap Int Int) $ zip (toList cumSum) [0..]
         (i, j):_ = do
             ci <- [0..length cumSum - 1]
-            cj <- [ci + 2..length cumSum - 1]
-            guard $ (cumSum ! cj) - (cumSum ! ci) == x
+            cj <- maybe [] singleton $ cumSumToIndex !? ((cumSum ! ci) + x)
+            guard $ ci + 1 < cj
             return (ci + 1, cj + 1)
         desiredList = slice i (j - i) numbers
 
