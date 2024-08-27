@@ -20,14 +20,12 @@ isSumOf2 numbersSet x = (not . null) sums
 -- >>> isSumOf2 (fromList @(HashSet Int) [35, 20, 15, 25, 47]) (40::Int)
 -- True
 
-solve1 :: [Int] -> HashSet Int -> [Int] -> [Int]
-solve1 _ _ []                                   = []
-solve1 (dropX:dropXs) numbersSet (testX:testXs)
-    | isSumOf2 numbersSet testX = nextResult
-    | otherwise = testX : nextResult
+solve1FoldFn :: (HashSet Int, [Int]) -> (Int, Int) -> (HashSet Int, [Int])
+solve1FoldFn (numbersSet, restResult) (dropX, testX) = (updatedNumbersSet, newResult)
     where
         updatedNumbersSet = insert testX . delete dropX $ numbersSet
-        nextResult = solve1 dropXs updatedNumbersSet testXs
+        newResult = if isSumOf2 numbersSet testX then restResult else testX:restResult
+
 
 solve2 numbers cumSum x = minimum desiredList +  maximum desiredList
     where
@@ -42,7 +40,7 @@ solution contextSize input = (solution1, solution2)
     where
         numbers = fromList @(Vector _ ) . map fst . rights . map decimal . words $ input
         numbersList = toList numbers
-        [solution1] = solve1 numbersList (fromList $ take contextSize numbersList) (drop contextSize numbersList)
+        (_, [solution1]) = foldl solve1FoldFn (fromList $ take contextSize numbersList, []) (zip numbersList (drop contextSize numbersList))
         solution2 = solve2 numbers cumSum solution1
         cumSum = fromList @(Vector _ ) $ scanl1 (+) numbersList
 
