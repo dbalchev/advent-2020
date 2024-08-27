@@ -29,14 +29,25 @@ solve1 (dropX:dropXs) numbersSet (testX:testXs)
         updatedNumbersSet = insert testX . delete dropX $ numbersSet
         nextResult = solve1 dropXs updatedNumbersSet testXs
 
-solution contextSize input = solution1
+solve2 numbers cumSum x = minimum desiredList +  maximum desiredList
+    where
+        (i, j):_ = do
+            ci <- [0..length cumSum - 1]
+            cj <- [ci + 2..length cumSum - 1]
+            guard $ (cumSum ! cj) - (cumSum ! ci) == x
+            return (ci + 1, cj + 1)
+        desiredList = slice i (j - i) numbers
+
+solution contextSize input = (solution1, solution2)
     where
         numbers = fromList @(Vector _ ) . map fst . rights . map decimal . words $ input
         numbersList = toList numbers
-        solution1 = solve1 numbersList (fromList $ take contextSize numbersList) (drop contextSize numbersList)
+        [solution1] = solve1 numbersList (fromList $ take contextSize numbersList) (drop contextSize numbersList)
+        solution2 = solve2 numbers cumSum solution1
+        cumSum = fromList @(Vector _ ) $ scanl1 (+) numbersList
 
 -- >>> runSolution (solution 5) (TestInput "09")
--- [127]
+-- (127,62)
 
 -- >>> runSolution (solution 25) (RealInput "09")
--- [36845998]
+-- (36845998,4830226)
