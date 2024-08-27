@@ -103,6 +103,11 @@ class CanBeEmpty a where
     empty :: a
     null :: a -> Bool
 
+
+instance CanBeEmpty [a] where
+    empty = []
+    null = Prelude.null
+
 instance CanBeEmpty Text where
     empty = Data.Text.Lazy.empty
     null = Data.Text.Lazy.null
@@ -236,10 +241,12 @@ instance (Hashable k, Eq k) => SetLike (HashMap k v) where
 class Insertable a where
     type InsertElement a
     insert :: InsertElement a -> a -> a
+    delete :: InsertElement a -> a -> a
 
 instance (Hashable a, Eq a) => Insertable (HashSet a) where
     type InsertElement (HashSet a) = a
     insert = Data.HashSet.insert
+    delete = Data.HashSet.delete
 
 toKeyValuePairs = Data.HashMap.Lazy.toList
 
