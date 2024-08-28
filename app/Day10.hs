@@ -16,7 +16,7 @@ dp2 joltages = memo ! (length joltages - 1)
     where
         go :: Int -> Integer
         go 0 = 1
-        go n = sum . map (memo !) . takeWhile (\i -> (joltages ! i) >= threshold) $ [(n-1), (n-2)..0]
+        go n = sum . map (memo !) . takeWhile ((>= threshold) . (joltages !)) $ [(n-1), (n-2)..0]
             where
                 threshold = joltages ! n - 3
         memo = fromList @(Vector Integer) . map go $ [0..(length joltages - 1)]
