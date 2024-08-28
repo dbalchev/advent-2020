@@ -7,10 +7,9 @@ import           Data.List     (sort)
 import           Prelude       ()
 
 
-diffDistribution joltages = foldl foldFn empty (zipWith (-) joltageRestList joltageList)
+diffDistribution joltages = foldl (flip $ alter (Just . maybe 1 (+1))) empty (zipWith (-) joltageRestList joltageList)
     where
         joltageList@(_:joltageRestList) = toList joltages
-        foldFn distributionMap delta = alter (Just . maybe 1 (+1)) delta distributionMap
 
 dp2 :: Vector Int -> Integer
 dp2 joltages = memo ! (length joltages - 1)
