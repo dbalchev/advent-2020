@@ -11,6 +11,7 @@ common my-requires
         unordered-containers ^>= 0.2.20,
         -- transitive
         hashable ^>= 1.4.7.0,
+        deepseq ^>= 1.4.6.1,
 
 library advent2020-lib
     import: my-requires

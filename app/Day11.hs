@@ -1,10 +1,13 @@
+{-# LANGUAGE GADTs            #-}
 {-# LANGUAGE TypeApplications #-}
 module Day11 where
 import           AocPrelude
-import           Control.Monad (guard)
-import           Data.Bool     (bool)
-import           Data.Foldable (Foldable (toList))
-import           Prelude       ()
+import           Control.DeepSeq (deepseq)
+import           Control.Monad   (guard)
+import           Data.Bool       (bool)
+import           Data.Foldable   (Foldable (toList))
+import           Debug.Trace     (traceShow)
+import           Prelude         ()
 
 type Grid = Vector (Vector Char)
 
@@ -25,12 +28,13 @@ directions :: Vector (Int, Int)
 directions = fromList [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]
 
 countSeenOccupied :: Grid -> Int -> Int -> Int
-countSeenOccupied grid i j = sum $ map (\d -> bool 0 1 $ nextSeenMemo ! (i, j, d) == '#') [0..8]
+countSeenOccupied grid = go nextSeenMemo
     where
+        go memo i j = sum $ map (\d -> bool 0 1 $ memo ! (d, i, j) == '#') [0..8]
         nRows = length grid
         nCols = length (grid ! 0)
         nextSeen direction i j
-            | i < 0 || j < 0 || i >= nRows || j >= nRows = '.'
+            | i < 0 || j < 0 || i >= nRows || j >= nCols = '.'
             | currentCell /= '.' = currentCell
             | otherwise = nextSeenMemo ! (direction, ni, nj)
             where
@@ -38,20 +42,22 @@ countSeenOccupied grid i j = sum $ map (\d -> bool 0 1 $ nextSeenMemo ! (i, j, d
                 (di, dj) = directions ! direction
                 ni = di + i
                 nj = dj + j
-        nextSeenMemo = fromList @(HashMap _ _) $ do
+        nextSeenMemo =  traceShow "nexSeenMemo" $ fromList @(HashMap _ _) $ do
             directionIndex <- [0..8] :: [Int]
             i <- [0..(nRows - 1)]
             j <- [0..(nCols - 1)]
             return ((directionIndex, i, j), nextSeen directionIndex i j)
 
 oneStep :: (Grid -> Int -> Int -> Int) -> Int -> Grid -> Grid
-oneStep countScore threshold grid = fromList @Grid . map newRow $ [0..(nRows - 1)]
+oneStep countScore threshold grid = traceShow ("oneStep", debugInfo) $ deepseq result result
     where
         newRow :: Int -> Vector Char
         newRow i = fromList $ map (newGrid i) [0..(nCols - 1)]
         nRows = length grid
         nCols = length (grid ! 0)
         scoreForGrid = countScore grid
+        debugInfo = [[scoreForGrid i j| j <- [0..(nCols - 1)]]|i <- [0..(nRows - 1)]]
+        result = fromList @Grid . map newRow $ [0..(nRows - 1)]
         newGrid i j = case (grid ! i ! j, scoreForGrid i j) of
             ('.', _) -> '.'
             ('L', 0) -> '#'
@@ -63,11 +69,12 @@ countFixPointOccupied stepFn initialGrid = sum . map (bool 0 1 . (=='#')) . conc
         steps = iterate stepFn initialGrid
         (finalGrid, _):_ = filter (uncurry (==)) $ zip steps (tail steps)
 
-solution input = (solution1, solution2)
+solution input = map toList . toList . step . step $ initialGrid
     where
         initialGrid = fromList @Grid . map (fromList . unpack) . lines $ input
         solution1 = countFixPointOccupied (oneStep countNeirbyOccupied 4) initialGrid
-        solution2 = countFixPointOccupied (oneStep countSeenOccupied 5) initialGrid
+        step = oneStep countSeenOccupied 5
+        -- solution2 = countFixPointOccupied (oneStep countSeenOccupied 5) initialGrid
 
 
 -- >>> runSolution solution (TestInput "11")
