@@ -240,13 +240,22 @@ instance (Hashable k, Eq k) => SetLike (HashMap k v) where
 
 class Insertable a where
     type InsertElement a
+    type DeleteElement a
     insert :: InsertElement a -> a -> a
-    delete :: InsertElement a -> a -> a
+    delete :: DeleteElement a -> a -> a
 
 instance (Hashable a, Eq a) => Insertable (HashSet a) where
     type InsertElement (HashSet a) = a
+    type DeleteElement (HashSet a) = a
     insert = Data.HashSet.insert
     delete = Data.HashSet.delete
+
+instance (Hashable k, Eq k) => Insertable (HashMap k v) where
+    type InsertElement (HashMap k v) = (k, v)
+    type DeleteElement (HashMap k v) = k
+    insert (key, value) = Data.HashMap.Lazy.insert key value
+    delete = Data.HashMap.Lazy.delete
+
 
 toKeyValuePairs = Data.HashMap.Lazy.toList
 
