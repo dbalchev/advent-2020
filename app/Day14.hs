@@ -1,11 +1,13 @@
 {-# LANGUAGE NamedFieldPuns    #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TupleSections     #-}
 {-# LANGUAGE TypeApplications  #-}
 {-# LANGUAGE ViewPatterns      #-}
 module Day14 where
 
 import           AocPrelude
-import           Data.Bits  (Bits (complement, shiftL, (.&.), (.|.)))
+import           Data.Bits  (Bits (bit, complement, shiftL, testBit, (.&.), (.|.)))
+import           Data.Bool  (bool)
 import           Prelude    ()
 
 data ParsedLine = SetMask Text | SetMem {address :: Int, unmaskedValue :: Int} deriving(Show)
@@ -48,24 +50,56 @@ applyMask Mask {andMask, orMask} value = (value .|. orMask)  .&. andMask
 -- 73
 
 data DockingState = DockingState {
-    mask      :: Mask Int,
+    mask      :: Text,
     memoryMap :: HashMap Int Int
     } deriving(Show)
 
-updateState DockingState {memoryMap} (SetMask maskText) = DockingState {memoryMap, mask=parseMask $ unpack maskText}
-updateState DockingState {mask, memoryMap} (SetMem {address, unmaskedValue}) = DockingState{mask, memoryMap=newMemoryMap}
-    where
-        newMemoryMap = insert (address, applyMask mask unmaskedValue) memoryMap
+maskedAddressBits '0' bit = [bit]
+maskedAddressBits '1' _   = [1]
+maskedAddressBits 'X' _   = [0, 1]
 
-solution input = sum . elems . memoryMap $ endState
+combineBits :: [[Int]] -> [Int]
+combineBits [] = [0]
+combineBits (xs:xss) = do
+    rest <- combineBits xss
+    x <- xs
+    return $ x + shiftL rest 1
+
+maskedAddresses maskText address = combineBits (reverse bitVariants)
+    where
+        bitValues = map (bool 0 1 . testBit address) [35, 34 ..0]
+        bitVariants = do
+            (char, bit) <- zip (unpack maskText) bitValues
+            return (maskedAddressBits char bit)
+
+-- >>> maskedAddresses "000000000000000000000000000000X1001X" 42
+-- [26,27,58,59]
+
+updateState1 DockingState {memoryMap} (SetMask mask) = DockingState {memoryMap, mask}
+updateState1 DockingState {mask, memoryMap} (SetMem {address, unmaskedValue}) = DockingState{mask, memoryMap=newMemoryMap}
+    where
+        newMemoryMap = insert (address, applyMask (parseMask (unpack mask)) unmaskedValue) memoryMap
+
+updateState2 DockingState {memoryMap} (SetMask mask) = DockingState {memoryMap, mask}
+updateState2 DockingState {mask, memoryMap} (SetMem {address, unmaskedValue}) = DockingState{mask, memoryMap=newMemoryMap}
+    where
+        addresses = maskedAddresses mask address
+        newMemoryMap = (fromList . map (,unmaskedValue) $ addresses) `union` memoryMap
+
+
+solution input = (solution1, solution2)
     where
         parsedLines = fromList @(Vector _ ) . map parseLine . lines $ input
-        initialMask = Mask {orMask=0, andMask=complement 0}
-        initialState = DockingState {mask=initialMask, memoryMap=empty}
-        endState = foldl updateState initialState parsedLines
+        initialState1 = DockingState {mask=pack $ replicate 36 'X', memoryMap=empty}
+        endState1 = foldl updateState1 initialState1 parsedLines
+        endState2 = foldl updateState2 initialState1 parsedLines
+        [solution1, solution2] = map (sum . elems . memoryMap) [endState1, endState2]
 
--- >>> runSolution solution (TestInput "14")
+-- >>> runSolution (fst . solution) (TestInput "14")
 -- 165
 
+-- >>> runSolution (snd . solution) (TestInput "14.2")
+-- 208
+
 -- >>> runSolution solution (RealInput "14")
--- 18630548206046
+-- (18630548206046,4254673508445)
