@@ -6,18 +6,19 @@
 module Day14 where
 
 import           AocPrelude
-import           Data.Bits  (Bits (bit, complement, shiftL, testBit, (.&.), (.|.)))
-import           Data.Bool  (bool)
-import           Prelude    ()
+import           Data.Bits    (Bits (bit, complement, shiftL, testBit, (.&.), (.|.)))
+import           Data.Bool    (bool)
+import           Data.Functor ((<&>))
+import           Prelude      ()
 
 data ParsedLine = SetMask Text | SetMem {address :: Int, unmaskedValue :: Int} deriving(Show)
 
 parseLine (stripPrefix "mask = " -> Just mask) = SetMask mask
-parseLine (stripPrefix "mem[" -> Just noPrefix) =  SetMem {address, unmaskedValue}
+parseLine (stripPrefix "mem[" <&> (splitOn "] = " <$>) -> Just [addressStr, valueStr]) =  SetMem {address, unmaskedValue}
     where
-        [addressStr, valueStr] = splitOn "] = " noPrefix
         Right (address, _) = decimal addressStr
         Right (unmaskedValue, _) = decimal valueStr
+
 
 -- >>> parseLine "mask = XXXXXXXXXXXXXXXXXXXXXXXXXXXXX1XXXX0X"
 -- SetMask "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX1XXXX0X"
