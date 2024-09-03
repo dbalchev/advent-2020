@@ -9,6 +9,7 @@ common my-requires
         text ^>= 2.1.1,
         persistent-vector ^>= 0.2.0,
         unordered-containers ^>= 0.2.20,
+        array ^>= 0.5.4.0,
         -- transitive
         hashable ^>= 1.4.7.0,
         deepseq ^>= 1.4.6.1,
