@@ -53,12 +53,12 @@ computePossibleIndices nearbyTickets constraints  = fromList $ do
     return index
 
 trivailSolvePossibleIndices :: HashMap Text (HashSet Int ) -> HashMap Text (HashSet Int)
-trivailSolvePossibleIndices = go
+trivailSolvePossibleIndices = fromList . go
     where
         hasSingleElementMapping = any ((== 1) . length)
         go mapping
-            | not $ hasSingleElementMapping mapping = mapping
-            | otherwise = insert (singleElementKey, fromList [singleElementValue]) $ go cleanedMap
+            | not $ hasSingleElementMapping mapping = toKeyValuePairs mapping
+            | otherwise = (singleElementKey, fromList [singleElementValue]): go cleanedMap
             where
                 (singleElementKey, singleElementValueSet):_ = filter ((==1) . length . snd) $ toKeyValuePairs mapping
                 [singleElementValue] = toList singleElementValueSet
