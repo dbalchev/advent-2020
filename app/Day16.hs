@@ -53,16 +53,16 @@ computePossibleIndices nearbyTickets constraints  = fromList $ do
     return index
 
 trivailSolvePossibleIndices :: HashMap Text (HashSet Int ) -> HashMap Text (HashSet Int)
-trivailSolvePossibleIndices = fromList . go
+trivailSolvePossibleIndices = fromList . go . toKeyValuePairs
     where
         hasSingleElementMapping = any ((== 1) . length)
         go mapping
-            | not $ hasSingleElementMapping mapping = toKeyValuePairs mapping
+            | not $ hasSingleElementMapping mapping = mapping
             | otherwise = (singleElementKey, fromList [singleElementValue]): go cleanedMap
             where
-                (singleElementKey, singleElementValueSet):_ = filter ((==1) . length . snd) $ toKeyValuePairs mapping
+                (singleElementKey, singleElementValueSet):_ = filter ((==1) . length . snd) mapping
                 [singleElementValue] = toList singleElementValueSet
-                cleanedMap = fromList . map (second (delete singleElementValue)) . filter ((/= singleElementKey) . fst) . toKeyValuePairs $ mapping
+                cleanedMap = map (second (delete singleElementValue)) . filter ((/= singleElementKey) . fst) $ mapping
 
 extractFields fieldFilter mapping ticket = do
     (field, indices) <- toKeyValuePairs mapping
@@ -84,7 +84,7 @@ solution fieldFilter input = (solution1, solution2)
 
 
 -- >>> runSolution (solution (const False)) (TestInput "16")
--- (71,[])
+-- (71,1)
 
 
 -- >>> runSolution (solution (== "class")) (TestInput "16.2")
