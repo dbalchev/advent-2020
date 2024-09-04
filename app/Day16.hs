@@ -46,8 +46,8 @@ valdiateRange (low, high) n = low <= n && n <= high
 isValidForAny :: HashMap a (Vector (Int, Int)) -> Int -> Bool
 isValidForAny validations number = any (`validateField` number) . elems $ validations
 
-computePossibleIndices :: Vector (Int, Int) -> Vector (Vector Int) -> HashSet Int
-computePossibleIndices constraints nearbyTickets = fromList $ do
+computePossibleIndices :: Vector (Vector Int) -> Vector (Int, Int) -> HashSet Int
+computePossibleIndices nearbyTickets constraints  = fromList $ do
     index <- [0..(length (nearbyTickets ! 0) - 1)]
     guard $ all (validateField constraints . (! index)) nearbyTickets
     return index
@@ -77,7 +77,7 @@ solution fieldFilter input = (solution1, solution2)
         allNearbyTickets = concatMap toList . toList $ nearbyTickets
         solution1 = sum . filter (not . isValidForAny validations) $ allNearbyTickets
         validNearbyTickets = fromList @(Vector _ ) . filter (all (isValidForAny validations)) . toList $ nearbyTickets
-        validMappings = fromList @(HashMap _ _). map (\(k, v) -> (k, computePossibleIndices v validNearbyTickets)) $ toKeyValuePairs validations
+        validMappings = fromList @(HashMap _ _). map (second (computePossibleIndices validNearbyTickets)) $ toKeyValuePairs validations
         solvedMappings = trivailSolvePossibleIndices validMappings
         solution2 = product $ extractFields fieldFilter solvedMappings myTicketFields
 
