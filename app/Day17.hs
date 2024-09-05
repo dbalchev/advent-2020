@@ -10,13 +10,17 @@ import           Prelude        ()
 
 deltas = [-1, 0, 1]
 
-adjCoordinates currentPoint@(x, y, z) = do
+generalAdjCoordinates wDeltas currentPoint@(x, y, z, w) = do
     dx <- deltas
     dy <- deltas
     dz <- deltas
-    let adjPoint = (x + dx, y + dy, z + dz)
+    dw <- wDeltas
+    let adjPoint = (x + dx, y + dy, z + dz, w + dw)
     guard $ currentPoint /= adjPoint
     return adjPoint
+
+adjCoordinates1 = generalAdjCoordinates [0]
+adjCoordinates2 = generalAdjCoordinates deltas
 
 readInput input = activatedPointsList
     where
@@ -25,20 +29,20 @@ readInput input = activatedPointsList
             (y, cubeRow) <- zip [0..] (toList grid)
             (x, cubeChar) <- zip [0..] (toList cubeRow)
             guard $ cubeChar == '#'
-            return (x, y, 0)
+            return (x, y, 0, 0)
 
 
 -- >>> runSolution readInput (TestInput "17")
--- [(1,0,0),(2,1,0),(0,2,0),(1,2,0),(2,2,0)]
+-- [(1,0,0,0),(2,1,0,0),(0,2,0,0),(1,2,0,0),(2,2,0,0)]
 
 newCubeState False 3 = True
 newCubeState True 2  = True
 newCubeState True 3  = True
 newCubeState _ _     = False
 
-type Point = (Int, Int, Int)
-oneCycle :: (HashSet Point, HashSet Point) -> (HashSet Point, HashSet Point)
-oneCycle (oldActiveSet, oldChangedSet) = (newActive, newChanged)
+type Point = (Int, Int, Int, Int)
+oneCycle :: (Point -> [Point]) -> (HashSet Point, HashSet Point) -> (HashSet Point, HashSet Point)
+oneCycle adjCoordinates (oldActiveSet, oldChangedSet) = (newActive, newChanged)
     where
         countActiveAdj point = sum . map (bool 0 1 . (`member` oldActiveSet)) $ adjCoordinates point
         informedNewState point = newCubeState (point `member` oldActiveSet) (countActiveAdj point)
@@ -48,18 +52,21 @@ oneCycle (oldActiveSet, oldChangedSet) = (newActive, newChanged)
         newDeactivated = changedToInactivated `intersection` oldActiveSet
         newChanged = fromList . concatMap (concatMap adjCoordinates . toList) $ [newActivated, newDeactivated]
 
-initialState :: [Point] -> (HashSet Point, HashSet Point)
-initialState initialActive = (fromList initialActive, fromList (initialActive ++ concatMap adjCoordinates initialActive))
+initialState :: (Point -> [Point]) -> [Point] -> (HashSet Point, HashSet Point)
+initialState adjCoordinates initialActive = (fromList initialActive, fromList (initialActive ++ concatMap adjCoordinates initialActive))
 
-solution input = length cycle6
+generalSolve adjCoordinates initialActivated = length . fst $ stateList !! 6
     where
-        cycle0 = initialState . readInput $ input
-        stateList = iterate oneCycle cycle0
-        (cycle6, _) = stateList !! 6
+        stateList = iterate (oneCycle adjCoordinates) (initialState adjCoordinates (toList initialActivated))
+solution input = (solution1, solution2)
+    where
+        initialActivated = fromList @(Vector _) . readInput $ input
+        solution1 = generalSolve adjCoordinates1 initialActivated
+        solution2 = generalSolve adjCoordinates2 initialActivated
 
 -- >>> runSolution solution (TestInput "17")
--- 112
+-- (112,848)
 
 -- >>> runSolution solution (RealInput "17")
--- 291
+-- (291,1524)
 
