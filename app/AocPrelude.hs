@@ -225,18 +225,21 @@ class SetLike a where
     member :: SetItem a -> a  -> Bool
     intersection :: a -> a -> a
     union :: a -> a -> a
+    difference :: a -> a -> a
 
 instance (Hashable a, Eq a) => SetLike (HashSet a) where
     type SetItem (HashSet a) = a
     member = Data.HashSet.member
     intersection = Data.HashSet.intersection
     union = Data.HashSet.union
+    difference = Data.HashSet.difference
 
 instance (Hashable k, Eq k) => SetLike (HashMap k v) where
     type SetItem (HashMap k v) = k
     member = Data.HashMap.Lazy.member
     intersection = Data.HashMap.Lazy.intersection
     union = Data.HashMap.Lazy.union
+    difference = Data.HashMap.Lazy.difference
 
 class Insertable a where
     type InsertElement a
