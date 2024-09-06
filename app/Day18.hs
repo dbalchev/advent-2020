@@ -71,9 +71,48 @@ tokenize = map pack . groupBy shouldJoin . filter (/= ' ') . unpack
 -- >>> (evalExpression . fst . parseExpression . reverse . tokenize) "((2 + 4 * 9) * (6 + 9 * 8 + 6) + 6) + 2 + 4 * 2"
 -- 13632
 
-evalLine = evalExpression . fst . parseExpression . reverse . tokenize
+evalLine1 = evalExpression . fst . parseExpression . reverse . tokenize
 
-solution = sum . map evalLine . lines
+{-
+grammar
+A -> Literal
+A -> (T)
+S -> A
+S -> A + S
+P -> S
+P -> S * P
+T -> P
+-}
+
+parseA ((unpackNumber -> Just number):rest) = (Literal number, rest)
+parseA ("(":rest) = (result, newRest)
+    where (result, ")":newRest) = parseP rest
+
+parseS tokens = case lhRest of
+    ((unpackOperator -> Just '+'):opRest) -> (BinaryOp '+' lh rh, rhRest)
+        where
+            (rh, rhRest) = parseS opRest
+    _                                    -> (lh, lhRest)
+    where
+        (lh, lhRest) = parseA tokens
+
+parseP tokens = case lhRest of
+    ((unpackOperator -> Just '*'):opRest) -> (BinaryOp '*' lh rh, rhRest)
+        where
+            (rh, rhRest) = parseP opRest
+    _                                    -> (lh, lhRest)
+    where
+        (lh, lhRest) = parseS tokens
+
+-- >>> evalExpression .fst  . parseP . tokenize $ "1 + 2 * 3 + 4 * 5 + 6"
+-- 231
+evalLine2 = evalExpression . fst . parseP . tokenize
+
+solution input = (solution1, solution2)
+    where
+        inputLines = lines input
+        solution1 = sum . map evalLine1 $ inputLines
+        solution2 = sum . map evalLine2 $ inputLines
 
 -- >>> runSolution solution (RealInput "18")
--- 800602729153
+-- (800602729153,92173009047076)
