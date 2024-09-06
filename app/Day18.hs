@@ -92,7 +92,7 @@ parseOp lowerParse opSymbol tokens = case lhRest of
     (opHead:opRest) | unpackOperator opHead == Just opSymbol -> (BinaryOp opSymbol lh rh, rhRest)
         where
             (rh, rhRest) = selfParse opRest
-    _                                    -> (lh, lhRest)
+    _                                                        -> (lh, lhRest)
     where
         (lh, lhRest) = lowerParse tokens
         selfParse = parseOp lowerParse opSymbol
