@@ -48,6 +48,7 @@ executable advent2020
         Day15,
         Day16,
         Day17,
+        Day18,
 
 test-suite tests
     import: my-requires
