@@ -88,21 +88,17 @@ parseA ((unpackNumber -> Just number):rest) = (Literal number, rest)
 parseA ("(":rest) = (result, newRest)
     where (result, ")":newRest) = parseP rest
 
-parseS tokens = case lhRest of
-    ((unpackOperator -> Just '+'):opRest) -> (BinaryOp '+' lh rh, rhRest)
+parseOp lowerParse opSymbol tokens = case lhRest of
+    (opHead:opRest) | unpackOperator opHead == Just opSymbol -> (BinaryOp opSymbol lh rh, rhRest)
         where
-            (rh, rhRest) = parseS opRest
+            (rh, rhRest) = selfParse opRest
     _                                    -> (lh, lhRest)
     where
-        (lh, lhRest) = parseA tokens
+        (lh, lhRest) = lowerParse tokens
+        selfParse = parseOp lowerParse opSymbol
 
-parseP tokens = case lhRest of
-    ((unpackOperator -> Just '*'):opRest) -> (BinaryOp '*' lh rh, rhRest)
-        where
-            (rh, rhRest) = parseP opRest
-    _                                    -> (lh, lhRest)
-    where
-        (lh, lhRest) = parseS tokens
+parseS = parseOp parseA '+'
+parseP = parseOp parseS '*'
 
 -- >>> evalExpression .fst  . parseP . tokenize $ "1 + 2 * 3 + 4 * 5 + 6"
 -- 231
