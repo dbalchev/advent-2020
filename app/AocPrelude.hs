@@ -4,7 +4,7 @@ module AocPrelude (
     module All,
     module Prelude,
     foo,
-    CanBeEmpty(..), FromList(..), ListLike(..), Indexable(..), Splittable(..), HasLength(..), SetLike(..), Insertable(..), Updatable(..),
+    CanBeEmpty(..), FromList(..), ListLike(..), Indexable(..), Splittable(..), HasLength(..), SetLike(..), SetLikeOps(..),Insertable(..), Updatable(..),
     toKeyValuePairs,
     makeFileName,
     TestInput(..), RealInput(..),
@@ -88,6 +88,7 @@ import           Data.Vector.Persistent as All hiding (all, any, append, break,
 
 import qualified Data.HashMap.Lazy
 import qualified Data.HashSet
+import qualified Data.List
 import qualified Data.Text.Lazy
 import qualified Data.Text.Lazy.IO
 import qualified Data.Vector.Persistent
@@ -223,6 +224,12 @@ instance HasLength Text where
 class SetLike a where
     type SetItem a
     member :: SetItem a -> a  -> Bool
+
+instance (Eq a) => SetLike [a] where
+    type SetItem [a] = a
+    member = Data.List.elem
+
+class (SetLike a) => SetLikeOps a where
     intersection :: a -> a -> a
     union :: a -> a -> a
     difference :: a -> a -> a
@@ -230,6 +237,8 @@ class SetLike a where
 instance (Hashable a, Eq a) => SetLike (HashSet a) where
     type SetItem (HashSet a) = a
     member = Data.HashSet.member
+
+instance (Hashable a, Eq a) => SetLikeOps (HashSet a) where
     intersection = Data.HashSet.intersection
     union = Data.HashSet.union
     difference = Data.HashSet.difference
@@ -237,6 +246,8 @@ instance (Hashable a, Eq a) => SetLike (HashSet a) where
 instance (Hashable k, Eq k) => SetLike (HashMap k v) where
     type SetItem (HashMap k v) = k
     member = Data.HashMap.Lazy.member
+
+instance (Hashable k, Eq k) => SetLikeOps (HashMap k v) where
     intersection = Data.HashMap.Lazy.intersection
     union = Data.HashMap.Lazy.union
     difference = Data.HashMap.Lazy.difference
