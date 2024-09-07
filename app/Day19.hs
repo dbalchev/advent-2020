@@ -17,6 +17,7 @@ parseGrammarExprLine (splitOn ": " -> [name, grammarText]) = (name, parseGrammar
 type Grammar = (HashMap Text ParsedGrammarExpr)
 data MatchingGrammar = MChar Char | MOr [MatchingGrammar] | MCat [MatchingGrammar]
 
+
 matchExpr (MChar chr) (uncons -> Just (firstChar, rest))
     | chr == firstChar = [rest]
     | otherwise        = []
@@ -30,6 +31,8 @@ matchExpr (MCat (x:xs)) input = do
     xMatch <- matchExpr x input
     matchExpr (MCat xs) xMatch
 
+matchExpr _ "" = []
+
 convertParsed :: Grammar -> Text -> MatchingGrammar
 convertParsed grammar ruleName = compiled
     where
@@ -41,14 +44,22 @@ convertParsed grammar ruleName = compiled
 
 matchesGrammar grammar startingRule = ("" `member`) . matchExpr (convertParsed grammar startingRule)
 
-solution input = solution1
+countMatching grammar = length . filter (matchesGrammar grammar "0") . lines
+
+solution input = (solution1, solution2)
     where
         [grammarText, testTexts] = splitOn "\n\n" input
         grammar = fromList @Grammar . map parseGrammarExprLine . lines $ grammarText
-        solution1 = length . filter (matchesGrammar grammar "0") . lines $ testTexts
+        solution1 = countMatching grammar testTexts
+        updatedLines = [
+            "8: 42 | 42 8",
+            "11: 42 31 | 42 11 31"
+            ]
+        updatedGrammar = fromList @Grammar $ (toKeyValuePairs grammar ++ map parseGrammarExprLine updatedLines)
+        solution2 = countMatching updatedGrammar testTexts
 
 -- >>> runSolution solution (TestInput "19")
 -- 2
 
 -- >>> runSolution solution (RealInput "19")
--- 136
+-- (136,256)
