@@ -1,12 +1,12 @@
 {-# LANGUAGE NamedFieldPuns    #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TypeApplications  #-}
+{-# LANGUAGE TypeFamilies      #-}
 module Day16 where
 import           AocPrelude
 import           Control.Monad  (guard)
 import           Data.Bifunctor (Bifunctor (second))
 import           Data.Either    (rights)
-import           Data.Foldable  (toList)
 import           Prelude        ()
 
 data ParsedInput = ParsedInput {
@@ -82,12 +82,12 @@ solution fieldFilter input = (solution1, solution2)
         solution2 = product $ extractFields fieldFilter solvedMappings myTicketFields
 
 
-
+-- | Test Day 16
 -- >>> runSolution (solution (const False)) (TestInput "16")
 -- (71,1)
 
-
--- >>> runSolution (solution (== "class")) (TestInput "16.2")
+-- | Test Day 16 2
+-- >>> runSolution (solution (== (fromList "class"))) (TestInput "16.2")
 -- (0,12)
 
 -- >>> runSolution (solution ("departure" `isPrefixOf`)) (RealInput "16")

@@ -4,7 +4,7 @@ module AocPrelude (
     module All,
     module Prelude,
     foo,
-    CanBeEmpty(..), FromList(..), ListLike(..), Indexable(..), Splittable(..), HasLength(..), SetLike(..), SetLikeOps(..),Insertable(..), Updatable(..),
+    CanBeEmpty(..), FromList(..), ToList(..), ListLike(..), Indexable(..), Splittable(..), HasLength(..), SetLike(..), SetLikeOps(..),Insertable(..), Updatable(..),
     toKeyValuePairs,
     makeFileName,
     TestInput(..), RealInput(..),
@@ -86,6 +86,7 @@ import           Data.Vector.Persistent as All hiding (all, any, append, break,
                                                 unions, update, zip, zipWith,
                                                 (!), (!?))
 
+import qualified Data.Foldable
 import qualified Data.HashMap.Lazy
 import qualified Data.HashSet
 import qualified Data.List
@@ -145,6 +146,15 @@ instance FromList (Vector a) where
     type (FromElement (Vector a)) = a
     fromList = Data.Vector.Persistent.fromList
 
+class ToList a where
+    type ToElement a
+    toList :: a -> [ToElement a]
+
+instance (Foldable (t :: Type -> Type)) => (ToList (t a)) where
+    type ToElement (t a) = a
+    toList = Data.Foldable.toList
+
+
 class ListLike a where
     type Element a
     head :: a -> Element a
@@ -162,7 +172,6 @@ instance ListLike Text where
     head = Data.Text.Lazy.head
     singleton = Data.Text.Lazy.singleton
     snoc = Data.Text.Lazy.snoc
-
 
 instance ListLike (Vector a) where
     type Element (Vector a) = a

@@ -3,9 +3,8 @@
 module Day02 where
 
 import           AocPrelude
-import           Data.Bool     (bool)
-import           Data.Foldable (Foldable (toList))
-import           Prelude       ()
+import           Data.Bool  (bool)
+import           Prelude    ()
 
 data PasswordLine = PasswordLine
     {
@@ -41,7 +40,8 @@ solution inputText = (countPassing checkPassword1 (toList passwords), countPassi
         passwords :: Vector PasswordLine
         passwords = fromList $ map parsePassword inputLines
 
---- >>> runSolution solution (TestInput "02")
+-- | Test Day 02
+-- >>> runSolution solution (TestInput "02")
 -- (2,1)
 
 --- >>> runSolution solution (RealInput "02")

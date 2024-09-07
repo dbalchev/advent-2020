@@ -5,8 +5,7 @@
 {-# LANGUAGE TypeApplications  #-}
 module Day07 where
 import           AocPrelude
-import           Data.Foldable (Foldable (toList))
-import           Prelude       ()
+import           Prelude    ()
 
 data Regulation = Regulation {
     bagType         :: Text,
@@ -81,9 +80,11 @@ solve input = (length descendents - 1, countInside (nameToRegulation !) myBagTyp
         descendents :: HashSet Text
         descendents = collectDescendents (maybe [] toList .(childrenOfVertex !?)) [myBagType] empty
 
+-- | Test Day 07
 -- >>> runSolution solve (TestInput "07")
 -- (4,32)
 
+-- | Test Day 07 2
 -- >>> runSolution solve (TestInput "07.2")
 -- (0,126)
 

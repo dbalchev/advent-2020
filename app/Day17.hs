@@ -1,10 +1,10 @@
 {-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE TypeFamilies     #-}
 module Day17 where
 import           AocPrelude
 import           Control.Monad  (guard)
 import           Data.Bifunctor (Bifunctor (bimap))
 import           Data.Bool      (bool)
-import           Data.Foldable  (Foldable (toList))
 import           Data.List      (partition)
 import           Prelude        ()
 
@@ -64,6 +64,7 @@ solution input = (solution1, solution2)
         solution1 = generalSolve adjCoordinates1 initialActivated
         solution2 = generalSolve adjCoordinates2 initialActivated
 
+-- | Test Day 17
 -- >>> runSolution solution (TestInput "17")
 -- (112,848)
 

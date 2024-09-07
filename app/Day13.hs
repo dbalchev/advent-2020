@@ -1,10 +1,10 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TypeApplications  #-}
+{-# LANGUAGE TypeFamilies      #-}
 module Day13 where
 import           AocPrelude
-import           Data.Either   (rights)
-import           Data.Foldable (Foldable (toList))
-import           Prelude       ()
+import           Data.Either (rights)
+import           Prelude     ()
 
 readBus "x" = Nothing
 readBus numberStr = Just number
@@ -60,6 +60,7 @@ solution input = (wait1 * bus1, solve2 buses)
 
 
 
+-- | Test Day 13
 -- >>> runSolution solution (TestInput "13")
 -- (295,1068781)
 

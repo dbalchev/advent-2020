@@ -3,8 +3,7 @@
 {-# LANGUAGE ViewPatterns      #-}
 module Day19 where
 import           AocPrelude
-import           Data.Foldable (Foldable (toList))
-import           Prelude       ()
+import           Prelude    ()
 
 data ParsedGrammarExpr = GChar Char | GCompound (Vector (Vector Text)) deriving (Show)
 
@@ -58,8 +57,9 @@ solution input = (solution1, solution2)
         updatedGrammar = fromList @Grammar $ (toKeyValuePairs grammar ++ map parseGrammarExprLine updatedLines)
         solution2 = countMatching updatedGrammar testTexts
 
+-- | Test 18 2
 -- >>> runSolution solution (TestInput "19")
--- 2
+-- (2,2)
 
 -- >>> runSolution solution (RealInput "19")
 -- (136,256)

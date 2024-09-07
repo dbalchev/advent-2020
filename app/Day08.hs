@@ -58,6 +58,7 @@ solution input = (solution1, solution2)
             guard $ invalidIp == length instructions
             return register
 
+-- | Test Day 08
 -- >>> runSolution solution (TestInput "08")
 -- (5,8)
 

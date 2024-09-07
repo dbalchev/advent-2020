@@ -1,10 +1,11 @@
+{-# LANGUAGE FlexibleContexts  #-}
+{-# LANGUAGE GADTs             #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TypeApplications  #-}
 
 module Day06 where
 import           AocPrelude
-import           Data.Foldable (Foldable (toList))
-import           Prelude       ()
+import           Prelude    ()
 
 solve setOp = sum . map (length . foldl1 setOp . map (fromList @(HashSet Char) . unpack) . toList) . toList
 
@@ -14,6 +15,7 @@ solution inputText = (part1, part2)
         part2 = solve intersection answersPerGroup
         answersPerGroup = fromList @(Vector _) . map (fromList @(Vector _ ) . splitOn "\n") . splitOn "\n\n" $ inputText
 
+-- | Test Day 06
 -- >>> runSolution solution (TestInput "06")
 -- (11,6)
 

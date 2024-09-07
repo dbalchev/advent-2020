@@ -96,9 +96,11 @@ solution input = (solution1, solution2)
         endState2 = foldl updateState2 initialState1 parsedLines
         [solution1, solution2] = map (sum . elems . memoryMap) [endState1, endState2]
 
+-- | Test Day 14
 -- >>> runSolution (fst . solution) (TestInput "14")
 -- 165
 
+-- | Test Day 14 2
 -- >>> runSolution (snd . solution) (TestInput "14.2")
 -- 208
 

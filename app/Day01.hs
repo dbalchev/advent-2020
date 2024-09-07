@@ -29,7 +29,7 @@ solution inputText = (generalSolution inputNumbers 2, generalSolution inputNumbe
         inputNumbers = fst <$> numberAndRest
 
 
-
+-- | Test Day 01
 -- >>> runSolution solution (TestInput "01")
 -- (514579,241861950)
 

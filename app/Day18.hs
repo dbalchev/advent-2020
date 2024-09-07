@@ -68,7 +68,8 @@ tokenize = map pack . groupBy shouldJoin . filter (/= ' ') . unpack
 -- >>> tokenize "((25 + 4 * 9) * (6 + 9 * 8 + 6) + 6) + 2 + 4 * 2"
 -- ["(","(","25","+","4","*","9",")","*","(","6","+","9","*","8","+","6",")","+","6",")","+","2","+","4","*","2"]
 
--- >>> (evalExpression . fst . parseExpression . reverse . tokenize) "((2 + 4 * 9) * (6 + 9 * 8 + 6) + 6) + 2 + 4 * 2"
+-- | Test 18
+-- >>> (evalExpression . fst . parseExpression . reverse . tokenize . pack) "((2 + 4 * 9) * (6 + 9 * 8 + 6) + 6) + 2 + 4 * 2"
 -- 13632
 
 evalLine1 = evalExpression . fst . parseExpression . reverse . tokenize
@@ -100,7 +101,8 @@ parseOp lowerParse opSymbol tokens = case lhRest of
 parseS = parseOp parseA '+'
 parseP = parseOp parseS '*'
 
--- >>> evalExpression .fst  . parseP . tokenize $ "1 + 2 * 3 + 4 * 5 + 6"
+-- | Test 18 2
+-- >>> evalExpression .fst  . parseP . tokenize . pack $ "1 + 2 * 3 + 4 * 5 + 6"
 -- 231
 evalLine2 = evalExpression . fst . parseP . tokenize
 
@@ -109,6 +111,8 @@ solution input = (solution1, solution2)
         inputLines = lines input
         solution1 = sum . map evalLine1 $ inputLines
         solution2 = sum . map evalLine2 $ inputLines
+
+
 
 -- >>> runSolution solution (RealInput "18")
 -- (800602729153,92173009047076)

@@ -2,10 +2,9 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 module Day04 where
 import           AocPrelude
-import           Data.Bool     (bool)
-import           Data.Char     (isDigit, isHexDigit)
-import           Data.Foldable (Foldable (toList))
-import           Prelude       ()
+import           Data.Bool  (bool)
+import           Data.Char  (isDigit, isHexDigit)
+import           Prelude    ()
 
 
 requiredFields :: HashSet Text
@@ -57,12 +56,15 @@ solution inputText = (solution1, solution2)
         solution1 = (sum . map (bool 0 1 . isValidPassport1) . toList) passports
         solution2 = (sum . map (bool 0 1 . isValidPassport2) . toList) passports
 
+-- | Test Day 04
 -- >>> runSolution solution (TestInput "04")
 -- (2,2)
 
+-- | Test Day 04 invalid
 -- >>> runSolution solution (TestInput "04.invalid")
 -- (4,0)
 
+-- | Test Day 04 valid
 -- >>> runSolution solution (TestInput "04.valid")
 -- (4,4)
 

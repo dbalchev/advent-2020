@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs            #-}
 {-# LANGUAGE TypeApplications #-}
 module Day11 where
@@ -5,7 +6,6 @@ import           AocPrelude
 import           Control.DeepSeq (deepseq)
 import           Control.Monad   (guard)
 import           Data.Bool       (bool)
-import           Data.Foldable   (Foldable (toList))
 import           Prelude         ()
 
 type Grid = Vector (Vector Char)
@@ -75,6 +75,7 @@ solution input = (solution1, solution2)
         solution2 = countFixPointOccupied (oneStep countSeenOccupied 5) initialGrid
 
 
+-- | Test Day 11
 -- >>> runSolution solution (TestInput "11")
 -- (37,26)
 

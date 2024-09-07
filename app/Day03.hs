@@ -8,7 +8,7 @@ import           Prelude                ()
 type Grid = Vector (Vector Char)
 
 countTreeHits :: Grid -> (Int, Int) -> Int
-countTreeHits grid (deltaI, deltaJ) = go 0 0 1
+countTreeHits grid (deltaI, deltaJ) = go 0 0 0
     where
         go :: Int -> Int -> Int -> Int
         go i j acc = case grid !? i of
@@ -33,7 +33,8 @@ solution inputText = (solution1, solution2)
             (2, 1)
             ]
 
---- >>> runSolution solution (TestInput "03")
+-- | Test Day 03
+-- >>> runSolution solution (TestInput "03")
 -- (7,336)
 
 --- >>> runSolution solution (RealInput "03")

@@ -5,7 +5,6 @@ module Day09 where
 import           AocPrelude
 import           Control.Monad (guard)
 import           Data.Either   (rights)
-import           Data.Foldable (Foldable (toList))
 import           Prelude       ()
 
 isSumOf2 numbersSet x = (not . null) sums
@@ -45,6 +44,8 @@ solution contextSize input = (solution1, solution2)
         solution2 = solve2 numbers cumSum solution1
         cumSum = fromList @(Vector _ ) $ scanl1 (+) numbersList
 
+
+-- | Test Day 09
 -- >>> runSolution (solution 5) (TestInput "09")
 -- (127,62)
 

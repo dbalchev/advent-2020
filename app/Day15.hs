@@ -48,6 +48,7 @@ solve1 = (!! 2019) . numberSequence
 
 solve1m = (head . snd <$>) <$> monadicNumberSequence 2019
 
+-- | Test Day 15 2
 -- >>> solve1m [0, 3, 6]
 -- 436
 
@@ -55,6 +56,7 @@ solve1m = (head . snd <$>) <$> monadicNumberSequence 2019
 solve2 = (!! (30000000 - 1)) . numberSequence
 solve2m = (head . snd <$>) <$> monadicNumberSequence (30_000_000 - 1)
 
+-- | Test Day 15
 -- >>> map solve1 [[0, 3, 6], [1, 3, 2], [2, 1, 3], [1, 2, 3], [2, 3, 1], [3, 2, 1], [3, 1, 2]]
 -- [436,1,10,27,78,438,1836]
 
