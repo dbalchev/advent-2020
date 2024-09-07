@@ -154,6 +154,9 @@ instance (Foldable (t :: Type -> Type)) => (ToList (t a)) where
     type ToElement (t a) = a
     toList = Data.Foldable.toList
 
+instance ToList Text where
+    type ToElement Text = Char
+    toList = toList
 
 class ListLike a where
     type Element a
