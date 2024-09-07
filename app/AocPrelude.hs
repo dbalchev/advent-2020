@@ -1,5 +1,6 @@
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE TypeFamilies      #-}
+{-# LANGUAGE FlexibleInstances   #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeFamilies        #-}
 module AocPrelude (
     module All,
     module Prelude,
@@ -97,6 +98,8 @@ import qualified Prelude
 
 import           Data.Hashable          (Hashable)
 import           Data.Kind
+import           GHC.IO                 (catch)
+import           GHC.IO.Exception       (IOException)
 
 foo :: Int -> Int
 foo x = 2 * x
@@ -304,7 +307,7 @@ makeFileName dirName day = "inputs/" ++ dirName ++ "/" ++ day ++ ".txt"
 
 readAocInput dirName day = do
     let filename = makeFileName dirName day
-    Data.Text.Lazy.IO.readFile filename
+    catch (Data.Text.Lazy.IO.readFile filename) (\(ex :: IOException)-> Data.Text.Lazy.IO.readFile ("../" ++ filename))
 
 instance AoCInput TestInput where
     readInput (TestInput day) = readAocInput "test" day
