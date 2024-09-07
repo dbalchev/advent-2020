@@ -57,7 +57,7 @@ solution input = (solution1, solution2)
         updatedGrammar = fromList @Grammar $ (toKeyValuePairs grammar ++ map parseGrammarExprLine updatedLines)
         solution2 = countMatching updatedGrammar testTexts
 
--- | Test 18 2
+-- | Test 19
 -- >>> runSolution solution (TestInput "19")
 -- (2,2)
 
