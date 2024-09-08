@@ -5,7 +5,8 @@ module AocPrelude (
     module All,
     module Prelude,
     foo,
-    CanBeEmpty(..), FromList(..), ToList(..), ListLike(..), Indexable(..), Splittable(..), HasLength(..), SetLike(..), SetLikeOps(..),Insertable(..), Updatable(..),
+    CanBeEmpty(..), FromList(..), ToList(..), ListLike(..), Indexable(..), Splittable(..), HasLength(..), SetLike(..), SetLikeOps(..),
+    Insertable(..), Updatable(..), Reversible(..),
     toKeyValuePairs,
     makeFileName,
     TestInput(..), RealInput(..),
@@ -31,8 +32,8 @@ import           Data.HashSet           as All hiding (all, any, append, break,
                                                 unions, update, zip, zipWith,
                                                 (!), (!?))
 import           Prelude                hiding (head, length, lines, null,
-                                         splitAt, toList, unlines, unwords,
-                                         words)
+                                         reverse, splitAt, toList, unlines,
+                                         unwords, words)
 
 import           Data.HashMap.Lazy      as All hiding (all, any, append, break,
                                                 concat, concatMap, cycle,
@@ -96,7 +97,7 @@ import qualified Data.Text.Lazy.IO
 import qualified Data.Vector.Persistent
 import qualified Prelude
 
-import           Data.Hashable          (Hashable)
+import           Data.Hashable          (Hashable (..))
 import           Data.Kind
 import           GHC.IO                 (catch)
 import           GHC.IO.Exception       (IOException)
@@ -285,6 +286,20 @@ instance (Hashable k, Eq k) => Insertable (HashMap k v) where
     insert (key, value) = Data.HashMap.Lazy.insert key value
     delete = Data.HashMap.Lazy.delete
 
+instance (Hashable a) => Hashable (Vector a) where
+    hashWithSalt salt  = hashWithSalt salt . toList
+
+class (Reversible a) where
+    reverse :: a -> a
+
+instance (Reversible [a]) where
+    reverse = Prelude.reverse
+
+instance (Reversible (Vector a)) where
+    reverse = Data.Vector.Persistent.reverse
+
+instance (Reversible Text) where
+    reverse = Data.Text.Lazy.reverse
 
 toKeyValuePairs = Data.HashMap.Lazy.toList
 
