@@ -41,6 +41,7 @@ solve input = product cornerIds
         tiles = fromList @(HashMap _ _ ) . map readTile . splitOn "\n\n" $ input
         cornerIds = findCornerIds (idToBorders tiles) (keys tiles)
 
+-- | Day 20
 -- >>> runSolution solve (TestInput "20")
 -- 20899048083289
 

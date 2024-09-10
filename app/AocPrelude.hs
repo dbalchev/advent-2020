@@ -1,6 +1,7 @@
-{-# LANGUAGE FlexibleInstances   #-}
-{-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE TypeFamilies        #-}
+{-# LANGUAGE FlexibleInstances    #-}
+{-# LANGUAGE ScopedTypeVariables  #-}
+{-# LANGUAGE TypeFamilies         #-}
+{-# LANGUAGE UndecidableInstances #-}
 module AocPrelude (
     module All,
     module Prelude,
@@ -286,7 +287,7 @@ instance (Hashable k, Eq k) => Insertable (HashMap k v) where
     insert (key, value) = Data.HashMap.Lazy.insert key value
     delete = Data.HashMap.Lazy.delete
 
-instance (Hashable a) => Hashable (Vector a) where
+instance {-# OVERLAPPABLE #-} (Hashable a, Foldable (f :: Type -> Type), Eq (f a)) => Hashable (f a) where
     hashWithSalt salt  = hashWithSalt salt . toList
 
 class (Reversible a) where
