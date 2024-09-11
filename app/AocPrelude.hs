@@ -8,7 +8,7 @@ module AocPrelude (
     foo,
     CanBeEmpty(..), FromList(..), ToList(..), ListLike(..), Indexable(..), Splittable(..), HasLength(..), SetLike(..), SetLikeOps(..),
     Insertable(..), Updatable(..), Reversible(..),
-    toKeyValuePairs,
+    toKeyValuePairs, collectByFirst,
     makeFileName,
     TestInput(..), RealInput(..),
     runSolution
@@ -29,10 +29,10 @@ import           Data.HashSet           as All hiding (all, any, append, break,
                                                 reverse, scanl, scanl1, scanr,
                                                 scanr1, singleton, size, snoc,
                                                 span, splitAt, tail, take,
-                                                takeWhile, toList, union,
-                                                unions, update, zip, zipWith,
-                                                (!), (!?))
-import           Prelude                hiding (head, length, lines, null,
+                                                takeWhile, toList, transpose,
+                                                union, unions, update, zip,
+                                                zipWith, (!), (!?))
+import           Prelude                hiding (head, last, length, lines, null,
                                          reverse, splitAt, toList, unlines,
                                          unwords, words)
 
@@ -50,9 +50,9 @@ import           Data.HashMap.Lazy      as All hiding (all, any, append, break,
                                                 reverse, scanl, scanl1, scanr,
                                                 scanr1, singleton, size, snoc,
                                                 span, splitAt, tail, take,
-                                                takeWhile, toList, union,
-                                                unions, update, zip, zipWith,
-                                                (!), (!?))
+                                                takeWhile, toList, transpose,
+                                                union, unions, update, zip,
+                                                zipWith, (!), (!?))
 import           Data.Text.Lazy         as All hiding (all, any, append, break,
                                                 concat, concatMap, cycle,
                                                 delete, difference, drop,
@@ -67,9 +67,9 @@ import           Data.Text.Lazy         as All hiding (all, any, append, break,
                                                 reverse, scanl, scanl1, scanr,
                                                 scanr1, singleton, size, snoc,
                                                 span, splitAt, tail, take,
-                                                takeWhile, toList, union,
-                                                unions, update, zip, zipWith,
-                                                (!), (!?))
+                                                takeWhile, toList, transpose,
+                                                union, unions, update, zip,
+                                                zipWith, (!), (!?))
 import           Data.Text.Lazy.Read    as All
 import           Data.Vector.Persistent as All hiding (all, any, append, break,
                                                 concat, concatMap, cycle,
@@ -85,9 +85,9 @@ import           Data.Vector.Persistent as All hiding (all, any, append, break,
                                                 reverse, scanl, scanl1, scanr,
                                                 scanr1, singleton, size, snoc,
                                                 span, splitAt, tail, take,
-                                                takeWhile, toList, union,
-                                                unions, update, zip, zipWith,
-                                                (!), (!?))
+                                                takeWhile, toList, transpose,
+                                                union, unions, update, zip,
+                                                zipWith, (!), (!?))
 
 import qualified Data.Foldable
 import qualified Data.HashMap.Lazy
@@ -166,24 +166,30 @@ instance ToList Text where
 class ListLike a where
     type Element a
     head :: a -> Element a
+    last :: a -> Element a
     singleton :: Element a -> a
     snoc :: a -> Element a -> a
 
 instance ListLike [a] where
     type Element [a] = a
     head = Prelude.head
+    last = Prelude.last
     singleton x = [x]
     snoc xs x = xs ++ [x]
 
 instance ListLike Text where
     type Element Text = Char
     head = Data.Text.Lazy.head
+    last = Data.Text.Lazy.last
     singleton = Data.Text.Lazy.singleton
     snoc = Data.Text.Lazy.snoc
 
 instance ListLike (Vector a) where
     type Element (Vector a) = a
     head xs = xs ! 0
+    last xs = xs ! (n - 1)
+        where
+            n = length xs
     singleton = Data.Vector.Persistent.singleton
     snoc = Data.Vector.Persistent.snoc
 
@@ -303,6 +309,11 @@ instance (Reversible Text) where
     reverse = Data.Text.Lazy.reverse
 
 toKeyValuePairs = Data.HashMap.Lazy.toList
+
+collectByFirst :: (Hashable k, Eq k, ListLike collected, Traversable t) => t (k, Element collected) -> HashMap k collected
+collectByFirst = foldl updateMap empty
+    where
+        updateMap oldMap (newKey, newValue) = alter (Just . maybe (singleton newValue) (`snoc` newValue)) newKey oldMap
 
 -- AoC specific stuff
 
