@@ -74,23 +74,37 @@ makeFindTiles tiles borderName border = maybe [] toList $ borderToTile !? (borde
         borderToTile :: HashMap (BorderName, Vector Char) (Vector (Integer, Grid))
         borderToTile = collectByFirst allVariants
 
-buildFirstRow findTile targetLength firstCornerOptions  = take targetLength <$> rowList
+buildRowGeneric tileConstraints findTile targetLength firstCornerOptions = fmap reverse (fst $ rowList !! (targetLength - 1))
     where
-        rowList = iterate makeNext firstCornerOptions
-        makeNext currentOptions = do
-            current <- currentOptions
-            findTile BLeft (extractBorder BRight (snd current))
+        rowList = iterate makeNext (singleton <$> firstCornerOptions, tileConstraints)
+        makeNext (currentOptions, currentConstraint:restConstaints) = (nextOptions, restConstaints)
+            where
+                nextOptions = do
+                    currentRow@(currentLast@(currentId, _):_) <- currentOptions
+                    next@(nextId, _) <- findTile BLeft (extractBorder BRight (snd currentLast))
+                    guard $ currentConstraint next
+                    guard $ currentId /= nextId
+                    return (next:currentRow)
 
-buildNextRow findTile targetLength previousRow  = take targetLength <$> rowList
+buildFirstRow = buildRowGeneric (repeat (const True))
+buildNextRow findTile targetLength (firstOfPrevious:restOfPrevious) = buildRowGeneric tileConstraints findTile targetLength firstCornerOptions
     where
-        rowList = drop 1 . map (map snd) . scanl makeNext [(const True, undefined)] $ previousRow
-        bordersMatch left right = extractBorder BRight left == extractBorder BLeft right
-        makeNext :: [(Grid -> Bool, (Integer, Grid))] -> (Integer, Grid) -> [(Grid -> Bool, (Integer, Grid))]
-        makeNext leftCandidates upperTile = do
-            (testFromLeft, _) <- leftCandidates
-            candidate@(_, candidateTile) <- findTile BTop (extractBorder BBottom (snd upperTile))
-            guard $ testFromLeft candidateTile
-            return (bordersMatch candidateTile, candidate)
+        bordersMatch (topId, top) (bottomId, bottom) = topId /= bottomId && extractBorder BBottom top == extractBorder BTop bottom
+        tileConstraints = map bordersMatch restOfPrevious
+        firstCornerOptions = findTile BTop (extractBorder BBottom (snd firstOfPrevious))
+-- buildNextRow findTile targetLength previousRow = undefined
+--     where
+--         makeNext (currentOptions, )
+-- buildNextRow findTile targetLength previousRow  = take targetLength <$> rowList
+--     where
+--         rowList = transpose . drop 1 . map (map snd) . scanl makeNext [(const True, undefined)] $ previousRow
+--         bordersMatch (leftId, left) (rightId, right) = leftId /= rightId && extractBorder BRight left == extractBorder BLeft right
+--         makeNext :: [((Integer, Grid) -> Bool, (Integer, Grid))] -> (Integer, Grid) -> [((Integer, Grid) -> Bool, (Integer, Grid))]
+--         makeNext leftCandidates upperTile = do
+--             (testFromLeft, _) <- leftCandidates
+--             candidate <- findTile BTop (extractBorder BBottom (snd upperTile))
+--             guard $ testFromLeft candidate
+--             return (bordersMatch candidate, candidate)
 
 buildGrid findTile firstCornerOptions nRows nCols = allCandidates
     where
@@ -108,22 +122,26 @@ buildGrid findTile firstCornerOptions nRows nCols = allCandidates
             let vectorCandidate = fromList @(Vector (Vector _)) . map fromList $ trimmedCandidate
             return vectorCandidate
 
-solution2 tiles topLeftId = head $ map prettyPrint grid
+solution2 sideSize tiles topLeftId = prettyPrint grid -- map (map fst) foo
     where
         findTile = makeFindTiles tiles
-        grid = buildGrid findTile (map (topLeftId,) $ gridVariants (tiles ! topLeftId)) 3 3
+        firstCornerOptions = map (topLeftId,) $ gridVariants (tiles ! topLeftId)
+        (foo:_) = do
+            firstRow <- buildFirstRow findTile sideSize firstCornerOptions
+            secondRow <- buildNextRow findTile sideSize firstRow
+            return [firstRow, secondRow]
+        (grid:_) = buildGrid findTile (map (topLeftId,) $ gridVariants (tiles ! topLeftId)) sideSize sideSize
         prettyPrint = map (map fst . toList) . toList
 
 
-solve input = (product cornerIds, solution2 tiles (head cornerIds))
+solve input = (product cornerIds, solution2 3 tiles (head cornerIds))
     where
         tiles = fromList @(HashMap _ _ ) . map readTile . splitOn "\n\n" $ input
         cornerIds = findCornerIds (idToBorders tiles) (keys tiles)
 
 -- | Day 20
 -- >>> runSolution solve (TestInput "20")
--- WAS 20899048083289
--- NOW (20899048083289,[[3079],[3079,2473],[3079,3079,3079]])
+-- (20899048083289,[[1171,1489,2971],[2473,1427,2729],[3079,2311,1951]])
 
 -- >>> runSolution solve (RealInput "20")
 -- 18449208814679
