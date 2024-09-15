@@ -201,6 +201,13 @@ instance ListLike (Vector a) where
     singleton = Data.Vector.Persistent.singleton
     snoc = Data.Vector.Persistent.snoc
 
+instance (Hashable a) => ListLike (HashSet a) where
+    type Element (HashSet a) = a
+    head = head . toList
+    last = last . toList
+    singleton = Data.HashSet.singleton
+    snoc = flip insert
+
 class Indexable a where
     type Index a
     type Value a
