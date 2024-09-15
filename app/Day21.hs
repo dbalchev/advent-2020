@@ -14,7 +14,7 @@ parseLine line
     = (fromList @(HashSet _ ) $ words ingridientsStr, fromList @(HashSet _ ) $ splitOn ", " containsConcated)
 
 -- | Day 21 parseLine
--- >>> parseLine "mxmxvkd kfcds sqjhc nhms (contains dairy, fish)"
+-- >>> parseLine . pack $ "mxmxvkd kfcds sqjhc nhms (contains dairy, fish)"
 -- (fromList ["kfcds","nhms","sqjhc","mxmxvkd"],fromList ["dairy","fish"])
 
 parseInput = fromList @(Vector _ ) .map parseLine . lines
