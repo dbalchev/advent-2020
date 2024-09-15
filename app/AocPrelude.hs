@@ -8,7 +8,7 @@ module AocPrelude (
     foo,
     CanBeEmpty(..), FromList(..), ToList(..), ListLike(..), Indexable(..), Splittable(..), HasLength(..), SetLike(..), SetLikeOps(..),
     Insertable(..), Updatable(..), Reversible(..),
-    toKeyValuePairs, collectByFirst,
+    toKeyValuePairs, collectByFirst, trivailSolvePossibleIndices,
     makeFileName,
     TestInput(..), RealInput(..),
     runSolution
@@ -106,6 +106,7 @@ import qualified Data.Text.Lazy.IO
 import qualified Data.Vector.Persistent
 import qualified Prelude
 
+import           Data.Bifunctor         (Bifunctor (second))
 import           Data.Hashable          (Hashable (..))
 import           Data.Kind
 import           GHC.IO                 (catch)
@@ -329,6 +330,19 @@ collectByFirst :: (Hashable k, Eq k, ListLike collected, Traversable t) => t (k,
 collectByFirst = foldl updateMap empty
     where
         updateMap oldMap (newKey, newValue) = alter (Just . maybe (singleton newValue) (`snoc` newValue)) newKey oldMap
+
+trivailSolvePossibleIndices :: (Hashable a, Hashable b) => HashMap a (HashSet b) -> HashMap a (HashSet b)
+trivailSolvePossibleIndices = fromList . go . toKeyValuePairs
+    where
+        hasSingleElementMapping = any ((== 1) . length)
+        go mapping
+            | not $ hasSingleElementMapping mapping = mapping
+            | otherwise = (singleElementKey, fromList [singleElementValue]): go cleanedMap
+            where
+                (singleElementKey, singleElementValueSet):_ = filter ((==1) . length . snd) mapping
+                [singleElementValue] = toList singleElementValueSet
+                cleanedMap = map (second (delete singleElementValue)) . filter ((/= singleElementKey) . fst) $ mapping
+
 
 -- AoC specific stuff
 

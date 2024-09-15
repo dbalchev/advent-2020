@@ -52,17 +52,6 @@ computePossibleIndices nearbyTickets constraints  = fromList $ do
     guard $ all (validateField constraints . (! index)) nearbyTickets
     return index
 
-trivailSolvePossibleIndices :: HashMap Text (HashSet Int ) -> HashMap Text (HashSet Int)
-trivailSolvePossibleIndices = fromList . go . toKeyValuePairs
-    where
-        hasSingleElementMapping = any ((== 1) . length)
-        go mapping
-            | not $ hasSingleElementMapping mapping = mapping
-            | otherwise = (singleElementKey, fromList [singleElementValue]): go cleanedMap
-            where
-                (singleElementKey, singleElementValueSet):_ = filter ((==1) . length . snd) mapping
-                [singleElementValue] = toList singleElementValueSet
-                cleanedMap = map (second (delete singleElementValue)) . filter ((/= singleElementKey) . fst) $ mapping
 
 extractFields fieldFilter mapping ticket = do
     (field, indices) <- toKeyValuePairs mapping
