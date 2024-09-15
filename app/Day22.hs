@@ -8,7 +8,7 @@ import           AocPrelude
 import           Data.Bifunctor (Bifunctor (bimap))
 import qualified Data.Foldable  as DF
 import           Data.Function  (fix)
-import           Data.List      (sort)
+import           Data.List      (intercalate, sort)
 import           Prelude        ()
 
 readPlayerCards prefix = fmap (fromList @(Vector _). map (read . unpack) . lines) <$> stripPrefix prefix
@@ -96,8 +96,8 @@ isPlayer1WinningOld State2 {player1Cards, player2Cards, playedHands}
 data Action = HandWon Bool | PushGame ([Int], [Int]) | PopGame Bool deriving (Show)
 
 
-selectAction :: (HashSet ([Int], [Int]), [([Int], [Int])]) -> Action
-selectAction (playedHands, (p1, p2):_)
+selectAction :: [(HashSet ([Int], [Int]), ([Int], [Int]))] -> Action
+selectAction ((playedHands, (p1, p2)):_)
     | (p1, p2) `member` playedHands = PopGame True
     | null p1 = PopGame False
     | null p2 = PopGame True
@@ -112,17 +112,17 @@ selectAction (playedHands, (p1, p2):_)
 makeNewHands True (a:as,b:bs)  = (as ++ [a, b], bs)
 makeNewHands False (a:as,b:bs) = (as, bs ++ [b, a])
 
-applyAction :: Action -> (HashSet ([Int], [Int]), [([Int], [Int])]) -> (HashSet ([Int], [Int]), [([Int], [Int])])
-applyAction _ (a, []) = (a, [])
-applyAction action (playedHands, oldStack@((p1, p2):rest))
-    | (PopGame p1Won) <- action = applyAction (HandWon p1Won) (playedHands, rest)
-    | (PushGame newGame) <- action = (newPlayedHands, newGame:oldStack)
-    | (HandWon p1Won) <- action = let newHand = makeNewHands p1Won (p1, p2) in (newPlayedHands, newHand:rest)
+applyAction :: Action -> [(HashSet ([Int], [Int]), ([Int], [Int]))] -> [(HashSet ([Int], [Int]), ([Int], [Int]))]
+applyAction _ [] = []
+applyAction action oldStack@((playedHands, (p1, p2)):rest)
+    | (PopGame p1Won) <- action = applyAction (HandWon p1Won) rest
+    | (PushGame newGame) <- action = (empty, newGame):oldStack
+    | (HandWon p1Won) <- action = let newHand = makeNewHands p1Won (p1, p2) in (newPlayedHands, newHand):rest
     where
         newPlayedHands = insert (p1, p2) playedHands
-
+scoreCards cards = sum $ zipWith (*) [1..] (reverse cards)
 updateState2 state = applyAction (selectAction state) state
-solution input = endState2
+solution input = (score, score2)
     where
         initial = initialState . readInput $ input
         initial2 = bimap toList toList initial
@@ -130,13 +130,15 @@ solution input = endState2
         (endState, _):_ = dropWhile (uncurry (/=)) $ zip stateList (tail stateList)
         state1 = updateState initial
         endCards = toList . endCardList $  endState
-        score = sum $ zipWith (*) [1..] (reverse endCards)
-        state2List = iterate updateState2 (empty, [initial2])
-        endState2 = snd . last . takeWhile (not . null . snd) $ state2List
+        score = scoreCards endCards
+        state2List = iterate updateState2 [(empty, initial2)]
+        [(_, endState2)] = last . takeWhile (not . null) $ state2List
+        endCards2 = endCardList endState2
+        score2 = scoreCards endCards2
 
 -- | Day 22
 -- >>> runSolution solution (TestInput "22")
--- [([],[6,2,10,8,9,3,7,1,5,4])]
+-- (306,291)
 
 -- >>> runSolution solution (RealInput "22")
 -- 31308
