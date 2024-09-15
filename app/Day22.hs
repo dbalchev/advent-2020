@@ -141,5 +141,5 @@ solution input = (score, score2)
 -- (306,291)
 
 -- >>> runSolution solution (RealInput "22")
--- 31308
+-- (31308,33647)
 
