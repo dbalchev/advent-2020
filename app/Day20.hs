@@ -8,8 +8,9 @@
 module Day20 where
 import           AocPrelude
 import           Control.Monad (guard)
+import           Data.Bool     (bool)
 import           Data.Hashable (Hashable (hashWithSalt))
-import           Data.List     (transpose)
+import           Data.List     (intercalate, intersperse, transpose)
 import           GHC.Generics  (Generic (from))
 import           Prelude       ()
 
@@ -119,10 +120,74 @@ buildGrid findTile firstCornerOptions nRows nCols = allCandidates
         allCandidates = do
             candidate <- allCandidatesAsLists
             let trimmedCandidate = take nRows candidate
-            let vectorCandidate = fromList @(Vector (Vector _)) . map fromList $ trimmedCandidate
+            let vectorCandidate = fromList @(Vector (Vector _)) . map fromList . reverse $ trimmedCandidate
             return vectorCandidate
 
-solution2 sideSize tiles topLeftId = prettyPrint grid -- map (map fst) foo
+
+dropBorders :: Grid -> Grid
+dropBorders = fromList . map sliceVector . toList . sliceVector
+    where
+        sliceVector v = slice 1 (length v - 2) v
+
+-- | dropBorders test
+-- >>> map toList . toList . dropBorders . fromList . map fromList $ ["1234", "5678", "90AB", "CDEF"]
+-- ["67","0A"]
+
+concatCols :: [Grid] -> Grid
+concatCols cols = fromList . map mconcat . transpose $ gridRows
+    where
+        gridRows = map toList cols
+
+-- | concatCols test
+-- >>> map toList . toList . concatCols . map (fromList . map fromList) $ [["AB", "CD"], ["EF", "GH"]]
+-- ["ABEF","CDGH"]
+
+
+concatRows :: [Grid] -> Grid
+concatRows = fromList . concatMap toList
+
+-- | concatRows test
+-- >>> map toList . toList . concatRows . map (fromList . map fromList) $ [["AB", "CD"], ["EF", "GH"]]
+-- ["AB","CD","EF","GH"]
+
+reconstructMap :: Vector (Vector (a, Grid)) -> Grid
+reconstructMap = concatRows . map (((concatCols . map dropBorders) . map snd) . toList) . toList
+
+seaMonsterDiagram = [
+    "                  # ",
+    "#    ##    ##    ###",
+    " #  #  #  #  #  #   "
+    ]
+seaMonsterIndices = do
+    (i, row) <- zip [0..] seaMonsterDiagram
+    (j, char) <- zip [0..] row
+    guard $ char == '#'
+    return (i, j)
+
+seaMonsterRows = 1 + (maximum . map fst $ seaMonsterIndices)
+seaMonsterCols = 1 + (maximum . map snd $ seaMonsterIndices)
+-- >>> (seaMonsterRows, seaMonsterCols)
+-- (3,20)
+hasSeaMonserAtIndex :: Grid -> (Int, Int) -> Bool
+hasSeaMonserAtIndex grid (i, j)
+    | (i + seaMonsterRows > nRows) || (j + seaMonsterCols > nCols) = False
+    | otherwise = all hasRequiredChar seaMonsterIndices
+    where
+        nRows = length grid
+        nCols = length (grid ! 0)
+        hasRequiredChar (si, sj) = grid ! (si + i) ! (sj + j) == '#'
+
+countSeaMonsters grid = sum . map (bool 0 1) $ monsterMask
+    where
+        nRows = length grid
+        nCols = length (grid ! 0)
+        monsterMask = do
+            i <- [0..(nRows - seaMonsterRows)]
+            j <- [0..(nCols - seaMonsterCols)]
+            return $ hasSeaMonserAtIndex grid (i, j)
+
+
+solution2 sideSize tiles topLeftId = roughness
     where
         findTile = makeFindTiles tiles
         firstCornerOptions = map (topLeftId,) $ gridVariants (tiles ! topLeftId)
@@ -131,17 +196,21 @@ solution2 sideSize tiles topLeftId = prettyPrint grid -- map (map fst) foo
             secondRow <- buildNextRow findTile sideSize firstRow
             return [firstRow, secondRow]
         (grid:_) = buildGrid findTile (map (topLeftId,) $ gridVariants (tiles ! topLeftId)) sideSize sideSize
-        prettyPrint = map (map fst . toList) . toList
+        reconstructedMap = reconstructMap grid
+        prettyPrinted = intercalate "\n" . map toList . toList $ reconstructedMap
+        [nMonsters] = filter (/= 0) . map countSeaMonsters . gridVariants $ reconstructedMap
+        hashes = sum . map (bool 0 1 . (== '#')) . concatMap toList . toList $ reconstructedMap
+        roughness = hashes - nMonsters * length seaMonsterIndices
 
 
-solve input = (product cornerIds, solution2 3 tiles (head cornerIds))
+solve sideSize input = (product cornerIds, solution2 sideSize tiles (head cornerIds))
     where
         tiles = fromList @(HashMap _ _ ) . map readTile . splitOn "\n\n" $ input
         cornerIds = findCornerIds (idToBorders tiles) (keys tiles)
 
 -- | Day 20
--- >>> runSolution solve (TestInput "20")
--- (20899048083289,[[1171,1489,2971],[2473,1427,2729],[3079,2311,1951]])
+-- >>> runSolution (solve 3) (TestInput "20")
+-- (20899048083289,273)
 
--- >>> runSolution solve (RealInput "20")
--- 18449208814679
+-- >>> runSolution (solve 12) (RealInput "20")
+-- (18449208814679,1559)
