@@ -251,6 +251,9 @@ class Splittable a where
 instance Splittable Text where
     splitAt i = Data.Text.Lazy.splitAt (fromIntegral i)
 
+instance Splittable [a] where
+    splitAt = Data.List.splitAt
+
 class HasLength a where
     length :: a -> Int
 
