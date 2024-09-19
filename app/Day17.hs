@@ -42,15 +42,9 @@ newCubeState _ _     = False
 
 type Point = (Int, Int, Int, Int)
 oneCycle :: (Point -> [Point]) -> (HashSet Point, HashSet Point) -> (HashSet Point, HashSet Point)
-oneCycle adjCoordinates (oldActiveSet, oldChangedSet) = (newActive, newChanged)
+oneCycle adjCoordinates = celuarAutomataMove adjCoordinates transitionFn
     where
-        countActiveAdj point = sum . map (bool 0 1 . (`member` oldActiveSet)) $ adjCoordinates point
-        informedNewState point = newCubeState (point `member` oldActiveSet) (countActiveAdj point)
-        (changedToActivated, changedToInactivated) =  bimap (fromList @(HashSet _)) (fromList @(HashSet _)) . partition informedNewState . toList $ oldChangedSet
-        newActive = (oldActiveSet `difference` changedToInactivated) `union` changedToActivated
-        newActivated = changedToActivated `difference` oldActiveSet
-        newDeactivated = changedToInactivated `intersection` oldActiveSet
-        newChanged = fromList . concatMap (concatMap adjCoordinates . toList) $ [newActivated, newDeactivated]
+        transitionFn a =  newCubeState a . sum . map (bool 0 1)
 
 initialState :: (Point -> [Point]) -> [Point] -> (HashSet Point, HashSet Point)
 initialState adjCoordinates initialActive = (fromList initialActive, fromList (initialActive ++ concatMap adjCoordinates initialActive))

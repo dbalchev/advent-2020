@@ -2,6 +2,7 @@
 {-# LANGUAGE TypeApplications  #-}
 module Day24 where
 import           AocPrelude
+import           Data.Bool  (bool)
 import           Prelude    ()
 
 breakDownList []             = []
@@ -28,12 +29,27 @@ add (a, b) (c, d) = (a + c, b + d)
 
 normalize = foldl add (0, 0) . map delta . breakDown
 
-solve1 = length . filter ((==1) . (`mod` 2)) . elems . counter @(Int, Int) . map normalize . lines
+computeBlackTiles = map fst . filter ((==1) . (`mod` 2) . snd) . toKeyValuePairs . counter @(Int, Int) . map normalize . lines
+
+adjTiles tile = tile:(add tile . delta <$> ["e", "w", "ne", "sw", "nw", "se"])
+
+tileTransition False = (== 2) . sum . map (bool 0 1) . tail
+tileTransition True  = (`member` [1, 2]) . sum . map (bool 0 1) . tail
+
+nextDayMove :: (HashSet (Int, Int), HashSet (Int, Int)) -> (HashSet (Int, Int), HashSet (Int, Int))
+nextDayMove = celuarAutomataMove adjTiles tileTransition
+
+
+solve input = (length initialBlackTiles, length . fst $ states !! 100)
+    where
+        initialBlackTiles = computeBlackTiles input
+        initialState = (fromList initialBlackTiles, fromList . concatMap adjTiles $ initialBlackTiles)
+        states = iterate nextDayMove initialState
 
 -- | Day24
--- >>> runSolution solve1 (TestInput "24")
--- 10
+-- >>> runSolution solve (TestInput "24")
+-- (10,2208)
 
--- >>> runSolution solve1 (RealInput "24")
--- 420
+-- >>> runSolution solve (RealInput "24")
+-- (420,4206)
 

@@ -1,5 +1,6 @@
 {-# LANGUAGE FlexibleInstances    #-}
 {-# LANGUAGE ScopedTypeVariables  #-}
+{-# LANGUAGE TypeApplications     #-}
 {-# LANGUAGE TypeFamilies         #-}
 {-# LANGUAGE UndecidableInstances #-}
 module AocPrelude (
@@ -8,7 +9,7 @@ module AocPrelude (
     foo,
     CanBeEmpty(..), FromList(..), ToList(..), ListLike(..), Indexable(..), Splittable(..), HasLength(..), SetLike(..), SetLikeOps(..),
     Insertable(..), Updatable(..), Reversible(..),
-    toKeyValuePairs, collectByFirst, counter, trivailSolvePossibleIndices,
+    toKeyValuePairs, collectByFirst, counter, trivailSolvePossibleIndices, celuarAutomataMove,
     makeFileName,
     TestInput(..), RealInput(..),
     runSolution
@@ -106,9 +107,10 @@ import qualified Data.Text.Lazy.IO
 import qualified Data.Vector.Persistent
 import qualified Prelude
 
-import           Data.Bifunctor         (Bifunctor (second))
+import           Data.Bifunctor         (Bifunctor (bimap, second))
 import           Data.Hashable          (Hashable (..))
 import           Data.Kind
+import           Data.List              (partition)
 import           GHC.IO                 (catch)
 import           GHC.IO.Exception       (IOException)
 
@@ -354,6 +356,15 @@ trivailSolvePossibleIndices = fromList . go . toKeyValuePairs
                 [singleElementValue] = toList singleElementValueSet
                 cleanedMap = map (second (delete singleElementValue)) . filter ((/= singleElementKey) . fst) $ mapping
 
+celuarAutomataMove :: (Hashable a) => (a -> [a]) -> (Bool -> [Bool] -> Bool) -> (HashSet a, HashSet a) -> (HashSet a, HashSet a)
+celuarAutomataMove adjElements transitionFunction (oldActiveSet, oldChangedSet) = (newActive, newChanged)
+    where
+        informedNewState point = transitionFunction (point `member` oldActiveSet) (map (`member` oldActiveSet) (adjElements point))
+        (changedToActivated, changedToInactivated) =  bimap (fromList @(HashSet _)) (fromList @(HashSet _)) . partition informedNewState . toList $ oldChangedSet
+        newActive = (oldActiveSet `difference` changedToInactivated) `union` changedToActivated
+        newActivated = changedToActivated `difference` oldActiveSet
+        newDeactivated = changedToInactivated `intersection` oldActiveSet
+        newChanged = fromList . concatMap (concatMap adjElements . toList) $ [newActivated, newDeactivated]
 
 -- AoC specific stuff
 
