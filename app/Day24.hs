@@ -40,16 +40,19 @@ nextDayMove :: (HashSet (Int, Int), HashSet (Int, Int)) -> (HashSet (Int, Int), 
 nextDayMove = celuarAutomataMove adjTiles tileTransition
 
 
-solve input = (length initialBlackTiles, length . fst $ states !! 100)
+solve nSteps2 input = (length initialBlackTiles, length . fst $ states !! nSteps2)
     where
         initialBlackTiles = computeBlackTiles input
         initialState = (fromList initialBlackTiles, fromList . concatMap adjTiles $ initialBlackTiles)
         states = iterate nextDayMove initialState
 
 -- | Day24
--- >>> runSolution solve (TestInput "24")
+-- >>> runSolution (solve 5) (TestInput "24")
+-- (10,23)
+
+-- >>> runSolution (solve 100) (TestInput "24")
 -- (10,2208)
 
--- >>> runSolution solve (RealInput "24")
+-- >>> runSolution (solve 100) (RealInput "24")
 -- (420,4206)
 
