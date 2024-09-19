@@ -114,7 +114,7 @@ applyNMoves cyclicOrdering nMoves numbers = runST $ do
     processed <- applyM (mappedMoveST cyclicOrdering) nMoves mappedRepr
     fromMappedReprST processed
 
-solution1 initialStr = (map intToDigit . solutionFormat $ endstate1, r2)
+solution1 nMoves2 initialStr = (map intToDigit . solutionFormat $ endstate1, r2)
     where
         numbers = map digitToInt initialStr
         lastCup = 1_000_000
@@ -124,16 +124,19 @@ solution1 initialStr = (map intToDigit . solutionFormat $ endstate1, r2)
         cycledOrdering1 = generalCycledOrdering minValue maxValue
         cycledOrdering2 = generalCycledOrdering minValue lastCup
         endstate1 = applyNMoves cycledOrdering1 100 numbers
-        endstate2 = applyNMoves cycledOrdering2 10_000_000 numbers2
+        endstate2 = applyNMoves cycledOrdering2 nMoves2 numbers2
         (_, endstate2mapped) = toMappedRepr endstate2
         s2f = endstate2mapped ! 1
         s2s = endstate2mapped ! s2f
         r2 = s2f * s2s
 
 -- | Day 23
--- >>> solution1 "389125467"
+-- >>> solution1 1000 "389125467"
+-- ("67384529",12)
+
+-- >>> solution1 10_000_000 "389125467"
 -- ("67384529",149245887792)
 
 
--- >>> solution1 "653427918"
+-- >>> solution1 10_000_000 "653427918"
 -- ("76952348",72772522064)
