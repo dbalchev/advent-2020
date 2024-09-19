@@ -8,7 +8,7 @@ module AocPrelude (
     foo,
     CanBeEmpty(..), FromList(..), ToList(..), ListLike(..), Indexable(..), Splittable(..), HasLength(..), SetLike(..), SetLikeOps(..),
     Insertable(..), Updatable(..), Reversible(..),
-    toKeyValuePairs, collectByFirst, trivailSolvePossibleIndices,
+    toKeyValuePairs, collectByFirst, counter, trivailSolvePossibleIndices,
     makeFileName,
     TestInput(..), RealInput(..),
     runSolution
@@ -328,6 +328,14 @@ instance (Reversible Text) where
     reverse = Data.Text.Lazy.reverse
 
 toKeyValuePairs = Data.HashMap.Lazy.toList
+
+
+counter :: (Hashable a, Eq a) => [a] -> HashMap a Int
+counter = foldl (flip (alter (Just . maybe 1 (+1)))) empty
+
+-- | counter test
+-- >>> counter "abcabbcd"
+-- fromList [('a',2),('b',3),('c',2),('d',1)]
 
 collectByFirst :: (Hashable k, Eq k, ListLike collected, Traversable t) => t (k, Element collected) -> HashMap k collected
 collectByFirst = foldl updateMap empty

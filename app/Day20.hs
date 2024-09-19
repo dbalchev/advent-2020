@@ -22,12 +22,6 @@ readTile (lines -> (titleLine:tileLines)) = (tileNo, fromList @Grid . map (fromL
         Just tileNoStr = stripPrefix "Tile " titleLine >>= stripSuffix ":"
         Right (tileNo :: Integer, _) = decimal tileNoStr
 
-counter :: (Hashable a, Eq a) => [a] -> HashMap a Int
-counter = foldl (flip (alter (Just . maybe 1 (+1)))) empty
-
--- >>> counter "abcabbcd"
--- fromList [('a',2),('b',3),('c',2),('d',1)]
-
 findCornerIds :: (Integer -> [Vector Char]) -> [Integer] -> Vector Integer
 findCornerIds idToBorders tileIds = fromList . filter isCorner $ tileIds
     where
