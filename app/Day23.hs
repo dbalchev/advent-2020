@@ -5,7 +5,7 @@
 {-# LANGUAGE TypeApplications    #-}
 module Day23 where
 import           AocPrelude
-import           Control.Monad    (forM, forM_)
+import           Control.Monad    (forM, forM_, (>=>))
 import           Control.Monad.ST (ST, runST)
 import           Data.Array.Base  (UArray (UArray))
 import           Data.Array.ST    (MArray (newArray), STUArray, freeze,
@@ -106,8 +106,7 @@ mappedMoveST cyclicOrdering (f, n) = do
 -- [2,8,9,1,5,4,6,7,3]
 
 applyM :: (Monad m) => (a -> m a) -> Int -> a -> m a
-applyM _ 0 m = return m
-applyM f n m = f m >>= applyM f (n - 1)
+applyM f n = foldr (>=>) return (replicate n f)
 
 applyNMoves cyclicOrdering nMoves numbers = runST $ do
     mappedRepr <- toMappedReprST numbers
