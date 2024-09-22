@@ -1,27 +1,13 @@
 module Day25 where
 import           AocPrelude
-import           Control.Monad (guard)
-import           Prelude       ()
+import           Prelude    ()
 
 m = 20201227
 
-generatedSequence gen = iterate advance (0, 1)
-    where
-        advance (i, x) = (i + 1, x * gen `mod` m)
-
-bruteForce gen pk = fst . head  . filter ((== pk) . snd) . generatedSequence $ gen
-
--- >>> bruteForce 7 5764801
--- 8
-
--- >>> bruteForce 7 17807724
--- 11
+generatedSequence gen = zip [0..] (iterate ((`mod` m) . (* gen)) 1)
 
 dualBruteForce :: Integer -> [Integer] -> (Int, Integer)
-dualBruteForce gen pks = head $ do
-    (i, x) <- generatedSequence gen
-    guard $ x `member` pks
-    return (i, x)
+dualBruteForce gen pks = head . filter ((`member` pks) . snd) $ generatedSequence gen
 
 -- >>> dualBruteForce 7 [5764801, 17807724]
 -- (8,5764801)
